@@ -5,6 +5,7 @@ type Props = {
   required: boolean;
   error: boolean;
   errorMessage: string;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
   labelName: string;
@@ -15,6 +16,7 @@ type Props = {
 function TextInput({
   label,
   onChange,
+  onBlur,
   required,
   placeholder,
   error,
@@ -26,9 +28,9 @@ function TextInput({
   const generateTopLabel = (error: boolean, errorMessage: string) => {
     if (error) {
       return (
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-end">
           <label className="font-bold">{label}</label>
-          <p>{errorMessage}</p>
+          <p className="text-red-500 font-bold text-xs pb-1">{errorMessage}</p>
         </div>
       );
     }
@@ -36,14 +38,16 @@ function TextInput({
   };
 
   return (
-    <div className="flex flex-col justify-start">
+    <div className="flex flex-col justify-start mt-1">
       {generateTopLabel(error, errorMessage)}
       <input
+        className="placeholder-slate-500 px-2"
         type="text"
         name={labelName}
         id={labelID}
         value={value}
         onChange={onChange}
+        onBlur={onBlur ? onBlur : undefined}
         required={required}
         placeholder={placeholder ? placeholder : ""}
       />

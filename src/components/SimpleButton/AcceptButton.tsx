@@ -1,7 +1,11 @@
 import React from "react";
 import { DerivedButtonProps, BaseButton } from "./BaseButton";
 
-function AcceptButton({ children, handleClick }: DerivedButtonProps) {
+function AcceptButton({
+  children,
+  handleClick,
+  className,
+}: DerivedButtonProps) {
   const uniqueClasses = [
     "text-slate-100",
     "bg-green-700",
@@ -9,7 +13,10 @@ function AcceptButton({ children, handleClick }: DerivedButtonProps) {
     "border-b-green-900",
   ];
   return (
-    <BaseButton handleClick={handleClick} addlClasses={uniqueClasses}>
+    <BaseButton
+      handleClick={handleClick}
+      addlClasses={className ? [...uniqueClasses, className] : uniqueClasses}
+    >
       {children}
     </BaseButton>
   );

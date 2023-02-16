@@ -3,6 +3,7 @@ import React from "react";
 type DerivedButtonProps = {
   children: string;
   handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  className?: string;
   type?: "button" | "submit" | "reset";
 };
 
