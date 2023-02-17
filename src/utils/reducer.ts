@@ -7,7 +7,11 @@ const reducer = (state: State, action: ReducerAction): State => {
         ...state,
         resume: {
           ...state.resume,
-          name: action.payload,
+          name: {
+            data: action.payload.data,
+            error: action.payload.error,
+            prevRendered: true,
+          },
         },
       };
     }

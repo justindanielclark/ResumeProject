@@ -58,5 +58,6 @@ const stateAbbreviations = [
   "WV",
   "WI",
   "WY",
-];
+] as const;
+
 export default stateAbbreviations;

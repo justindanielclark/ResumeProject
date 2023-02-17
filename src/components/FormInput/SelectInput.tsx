@@ -2,8 +2,8 @@ import React from "react";
 
 type Props = {
   required: boolean;
-  error: boolean;
-  errorMessage: string;
+  error?: boolean;
+  errorMessage?: string;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   label: string;
   labelName: string;
@@ -29,12 +29,20 @@ function SelectInput({
     if (error) {
       return (
         <div className="flex gap-4">
-          <label className="font-bold">{label}</label>
+          <label className="font-bold">
+            {required ? <span className="text-xs absolute block left-2.5">*</span> : undefined}
+            {label}
+          </label>
           <p>{errorMessage}</p>
         </div>
       );
     }
-    return <label className="font-bold">{label}</label>;
+    return (
+      <label className="font-bold">
+        {required ? <span className="text-xs absolute block left-2.5">*</span> : undefined}
+        {label}
+      </label>
+    );
   };
   const generateOptions = (options: Array<string>) => {
     return options.map((option, index) => {
@@ -52,7 +60,7 @@ function SelectInput({
 
   return (
     <div className="flex flex-col justify-start">
-      {generateTopLabel(error, errorMessage)}
+      {error && errorMessage ? generateTopLabel(error, errorMessage) : generateTopLabel(false, "")}
       <select
         className="pl-1"
         name={labelName}

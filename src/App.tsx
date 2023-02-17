@@ -1,19 +1,21 @@
-import AppState from "./types/appState";
+import { AppState, TransitionState } from "./types/appState";
 import {
   NameData,
   JobData,
   EducationData,
-  ContactData,
   ReferenceData,
+  Address,
+  Payload,
 } from "./types/resumeData";
 import reducer from "./utils/reducer";
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import NameForm from "./components/Forms/NameForm";
 import { pronouns } from "./types/resumeData";
-import ContactForm from "./components/Forms/ContactForm";
+import AddressContactForm from "./components/Forms/AddressContactForm";
 
 const startState: AppState = {
-  currentSlide: 0,
+  currentSlide: 1,
+  transitionSlide: 1,
   transitioning: "none",
   resume: {
     name: {
@@ -22,24 +24,30 @@ const startState: AppState = {
         firstName: "",
         lastName: "",
         suffix: "-None Selected-",
-        pronoun: pronouns[0],
+        pronouns: pronouns[0],
       },
       prevRendered: false,
     },
-    contact: {
+    contactAddress: {
       data: {
-        address: {
-          address1: "",
-          city: "",
-          state: "",
-          zip: "",
-        },
+        address1: "",
+        city: "",
+        state: "CA",
+        zip: "",
+      },
+      prevRendered: false,
+    },
+    contactPhone: {
+      data: {
+        home: [],
+        mobile: [],
+        other: [],
+      },
+      prevRendered: false,
+    },
+    contactWeb: {
+      data: {
         email: [],
-        phone: {
-          home: [],
-          mobile: [],
-          other: [],
-        },
         websites: [],
       },
       prevRendered: false,
@@ -65,54 +73,81 @@ const startState: AppState = {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, startState);
-  const handleSubmitName = (payload: { data: NameData; error: boolean }) => {
+  useEffect(() => console.log({ state }), [state]);
+  const handleSubmitName = (payload: Payload<NameData>) => {
     dispatch({ type: "submitName", payload });
   };
-  const handleSubmitContactInfo = (payload: {
-    data: ContactData;
-    error: boolean;
-  }) => {
+  const handleSubmitAddressContactInfo = (payload: { data: Address; error: boolean }) => {
     dispatch({ type: "submitContactInfo", payload });
   };
-  const handleSubmitWorkExperience = (payload: {
-    data: Array<JobData>;
-    error: boolean;
-  }) => {
+  const handleSubmitWorkExperience = (payload: { data: Array<JobData>; error: boolean }) => {
     dispatch({ type: "submitWorkExperience", payload });
   };
-  const handleSubmitEducation = (payload: {
-    data: Array<EducationData>;
-    error: boolean;
-  }) => {
+  const handleSubmitEducation = (payload: { data: Array<EducationData>; error: boolean }) => {
     dispatch({ type: "submitEducation", payload });
   };
-  const handleSubmitSkills = (payload: {
-    data: Array<string>;
-    error: boolean;
-  }) => {
+  const handleSubmitSkills = (payload: { data: Array<string>; error: boolean }) => {
     dispatch({ type: "submitSkills", payload });
   };
-  const handleSubmitReferences = (payload: {
-    data: Array<ReferenceData>;
-    error: boolean;
-  }) => {
+  const handleSubmitReferences = (payload: { data: Array<ReferenceData>; error: boolean }) => {
     dispatch({ type: "submitReferences", payload });
+  };
+  const renderForms = (
+    transitioning: TransitionState,
+    currentIndex: number,
+    transitionToIndex: number
+  ): JSX.Element => {
+    if (transitioning === "none") {
+      return getFormByIndex(currentIndex);
+    } else if (transitioning === "forward") {
+      return (
+        <>
+          {getFormByIndex(currentIndex)}
+          {getFormByIndex(transitionToIndex)}
+        </>
+      );
+    } else {
+      return (
+        <>
+          {getFormByIndex(transitionToIndex)}
+          {getFormByIndex(currentIndex)}
+        </>
+      );
+    }
+    function getFormByIndex(index: number): JSX.Element {
+      switch (index) {
+        case 0: {
+          return (
+            <NameForm
+              nextHandler={dummyHandler}
+              submitHandler={handleSubmitName}
+              propState={state.resume.name.data}
+              prevRendered={state.resume.name.prevRendered}
+            />
+          );
+        }
+        case 1: {
+          return (
+            <AddressContactForm
+              nextHandler={dummyHandler}
+              prevHandler={dummyHandler}
+              submitHandler={handleSubmitAddressContactInfo}
+              prevRendered={state.resume.contactAddress.prevRendered}
+              propState={state.resume.contactAddress.data}
+            />
+          );
+        }
+        default: {
+          return <p>There has been an error, check renderForms() in App.tsx</p>;
+        }
+      }
+    }
   };
   const dummyHandler = () => console.log("dummy");
 
   return (
-    <div className="min-h-screen bg-slate-700 flex justify-center items-center">
-      <NameForm
-        nextHandler={dummyHandler}
-        submitHandler={handleSubmitName}
-        propState={state.resume.name.data}
-        prevRendered={state.resume.name.prevRendered}
-      />
-      {/* <ContactForm
-          nextHandler={dummyHandler}
-          submitHandler={handleSubmitContactInfo}
-          propState={state.resume.contact.data}
-        /> */}
+    <div className="min-h-screen bg-slate-700">
+      {renderForms(state.transitioning, state.currentSlide, state.transitionSlide)}
     </div>
   );
 }

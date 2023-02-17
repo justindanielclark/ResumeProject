@@ -1,23 +1,37 @@
 import {
   JobData,
-  ContactData,
   EducationData,
   ReferenceData,
   NameData,
+  Address,
+  PhoneContactData,
+  WebContactData,
 } from "./resumeData";
+
+type TransitionState = "none" | "forward" | "backwards";
 
 type AppState = {
   currentSlide: number;
-  transitionSlide?: number;
-  transitioning: "none" | "forward" | "backwards";
+  transitionSlide: number;
+  transitioning: TransitionState;
   resume: {
     name: {
       data: NameData;
       error?: boolean;
       prevRendered: boolean;
     };
-    contact: {
-      data: ContactData;
+    contactAddress: {
+      data: Address;
+      error?: boolean;
+      prevRendered: boolean;
+    };
+    contactWeb: {
+      data: WebContactData;
+      error?: boolean;
+      prevRendered: boolean;
+    };
+    contactPhone: {
+      data: PhoneContactData;
       error?: boolean;
       prevRendered: boolean;
     };
@@ -44,4 +58,5 @@ type AppState = {
   };
 };
 
+export type { TransitionState, AppState };
 export default AppState;

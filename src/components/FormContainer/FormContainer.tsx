@@ -11,10 +11,8 @@ type Props = {
 
 function FormContainer({ title, children, nextHandler, prevHandler }: Props) {
   return (
-    <form className="bg-slate-200 border-2 rounded-md border-slate-900 text-slate-800 p-4 relative animate-fadeOut origin-bottom">
-      <h1 className="border-b-2 border-slate-700 text-xl font-bold mb-2">
-        {title}
-      </h1>
+    <form className="bg-slate-200 border-2 rounded-md border-slate-900 text-slate-800 p-4 absolute top-1/2 left-1/2 h-fit -translate-x-1/2 -translate-y-1/2 w-96">
+      <h1 className="border-b-2 border-slate-700 text-xl font-bold mb-2">{title}</h1>
       {children}
       <div className="flex flex-row justify-between mt-2">
         {prevHandler ? (
@@ -22,11 +20,7 @@ function FormContainer({ title, children, nextHandler, prevHandler }: Props) {
             {"<<< Prev"}
           </CancelButton>
         ) : null}
-        <AcceptButton
-          className="ml-auto"
-          type="button"
-          handleClick={nextHandler}
-        >
+        <AcceptButton className="ml-auto" type="button" handleClick={nextHandler}>
           {"Next >>>"}
         </AcceptButton>
       </div>

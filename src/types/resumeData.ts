@@ -1,26 +1,6 @@
-const pronouns = [
-  ["-None Selected-"],
-  ["he", "him", "his"],
-  ["she", "her", "her"],
-  ["they", "they", "their"],
-  ["zie", "zim", "zir"],
-  ["sie", "sie", "hir"],
-  ["ey", "em", "eir"],
-  ["ve", "ver", "vis"],
-  ["tey", "ter", "tem"],
-  ["e", "em", "eir"],
-] as const;
-const prefixes = [
-  "-None Selected-",
-  "Mr.",
-  "Mrs.",
-  "Ms.",
-  "Mx.",
-  "Dr.",
-] as const;
-const suffixes = ["-None Selected-", "Jr.", "Sr."] as const;
-const degrees = ["Bachelors", "Masters", "Doctorate"] as const;
-const degreeTypes = ["Arts", "Science"] as const;
+import pronouns from "../data/pronouns";
+import { prefixes, suffixes } from "../data/nameAdditives";
+import { degrees, degreeTypes } from "../data/degrees";
 
 type PronounType = (typeof pronouns)[number];
 type PrefixType = (typeof prefixes)[number];
@@ -36,17 +16,16 @@ type NameData = {
   firstName: string;
   lastName: string;
   suffix: SuffixType;
-  pronoun: PronounType;
+  pronouns: PronounType;
 };
-type ContactData = {
-  phone: {
-    home: Array<number>;
-    mobile: Array<number>;
-    other: Array<number>;
-  };
+type PhoneContactData = {
+  home: Array<string>;
+  mobile: Array<string>;
+  other: Array<string>;
+};
+type WebContactData = {
   email: Array<string>;
   websites: Array<WebInfoType>;
-  address: Address;
 };
 type Address = {
   address1: string;
@@ -77,10 +56,25 @@ type ReferenceData = {
   title: string;
   job?: JobData;
 };
+type StatefulData<T> = {
+  [P in keyof T]: {
+    data: T[P];
+    error?: boolean;
+  };
+};
+
+type Payload<T> = {
+  data: {
+    [P in keyof T]: T[P];
+  };
+  error: boolean;
+};
 
 type ResumeData = {
   name: NameData;
-  contactInformation: ContactData;
+  contactAddress: Address;
+  contactWeb: WebContactData;
+  contactPhone: PhoneContactData;
   workExperience: Array<JobData>;
   education: Array<EducationData>;
   skills: Array<string>;
@@ -92,10 +86,14 @@ export type {
   JobData,
   NameData,
   ReferenceData,
-  ContactData,
+  Address,
+  WebContactData,
+  PhoneContactData,
   EducationData,
   SuffixType,
   PrefixType,
   PronounType,
+  StatefulData,
+  Payload,
 };
 export default ResumeData;

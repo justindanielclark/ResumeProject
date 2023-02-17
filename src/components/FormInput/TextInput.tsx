@@ -1,15 +1,15 @@
 import React from "react";
 
 type Props = {
-  placeholder?: string;
   required: boolean;
-  error: boolean;
-  errorMessage: string;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
   labelName: string;
   labelID: string;
+  placeholder?: string;
+  error?: boolean;
+  errorMessage?: string;
   value?: string;
 };
 
@@ -29,17 +29,25 @@ function TextInput({
     if (error) {
       return (
         <div className="flex gap-4 items-end">
-          <label className="font-bold">{label}</label>
+          <label className="font-bold">
+            {required ? <span className="text-xs absolute block left-2.5">*</span> : undefined}
+            {label}
+          </label>
           <p className="text-red-500 font-bold text-xs pb-1">{errorMessage}</p>
         </div>
       );
     }
-    return <label className="font-bold">{label}</label>;
+    return (
+      <label className="font-bold">
+        {required ? <span className="text-xs absolute block left-2.5">*</span> : undefined}
+        {label}
+      </label>
+    );
   };
 
   return (
     <div className="flex flex-col justify-start mt-1">
-      {generateTopLabel(error, errorMessage)}
+      {error && errorMessage ? generateTopLabel(error, errorMessage) : generateTopLabel(false, "")}
       <input
         className="placeholder-slate-500 px-2"
         type="text"

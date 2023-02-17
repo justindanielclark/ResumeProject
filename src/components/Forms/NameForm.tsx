@@ -8,8 +8,15 @@ import {
   prefixes,
   suffixes,
   PronounType,
+  StatefulData,
 } from "../../types/resumeData";
-
+import { checkInputForNotEmpty } from "../../utils/inputValidation";
+import {
+  handleSelectInputChange,
+  handleTextInputChange,
+  handleTextInputBlur,
+} from "../../utils/handlers";
+type State = StatefulData<NameData>;
 type Props = {
   propState: NameData;
   prevRendered: boolean;
@@ -17,148 +24,76 @@ type Props = {
   prevHandler?: () => void;
   submitHandler: (payload: { data: NameData; error: boolean }) => void;
 };
-function NameForm({
-  submitHandler,
-  nextHandler,
-  prevHandler,
-  propState,
-  prevRendered,
-}: Props) {
-  const [state, setState] = useState({
+function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRendered }: Props) {
+  const [state, setState] = useState<State>({
     prefix: {
       data: propState.prefix,
-      error: false,
     },
     firstName: {
       data: propState.firstName,
-      error: !prevRendered
-        ? false
-        : !checkNameInputForValidity(propState.firstName),
+      error: !prevRendered ? false : !checkInputForNotEmpty(propState.firstName),
     },
     lastName: {
       data: propState.lastName,
-      error: !prevRendered
-        ? false
-        : !checkNameInputForValidity(propState.lastName),
+      error: !prevRendered ? false : !checkInputForNotEmpty(propState.lastName),
     },
     suffix: {
       data: propState.suffix,
-      error: false,
     },
-    pronoun: {
-      data: propState.pronoun,
-      error: false,
+    pronouns: {
+      data: propState.pronouns,
     },
   });
-
   //!HANDLERS
   //Input Changes
-  const handlePrefixChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectValue = e.target.value as (typeof prefixes)[number];
-    if (selectValue !== state.prefix.data) {
-      setState({
-        ...state,
-        prefix: {
-          data: selectValue,
-          error: false,
-        },
-      });
-    }
-  };
-  const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    if (inputValue !== state.firstName.data) {
-      setState({
-        ...state,
-        firstName: {
-          data: inputValue,
-          error: inputValue === "" ? true : false,
-        },
-      });
-    }
-  };
-  const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    if (inputValue !== state.lastName.data) {
-      setState({
-        ...state,
-        lastName: {
-          data: inputValue,
-          error: inputValue === "" ? true : false,
-        },
-      });
-    }
-  };
-  const handleSuffixChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectValue = e.target.value as (typeof suffixes)[number];
-    if (selectValue !== state.suffix.data) {
-      setState({
-        ...state,
-        suffix: {
-          data: selectValue,
-          error: false,
-        },
-      });
-    }
+  const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) =>
+    handleTextInputChange(e, state, setState, checkInputForNotEmpty);
+  const handleNameBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleTextInputBlur(e, state, setState, checkInputForNotEmpty);
   };
   const handlePronounChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setState({
       ...state,
-      pronoun: {
+      pronouns: {
         data: pronouns[e.target.selectedIndex],
-        error: false,
       },
     });
   };
-  //Input Blurs
-  const handleFirstNameBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valid = checkNameInputForValidity(e.target.value);
-    if (!valid && !state.firstName.error) {
-      setState({
-        ...state,
-        firstName: {
-          data: state.firstName.data,
-          error: !valid,
-        },
-      });
-    }
-  };
-  const handleLastNameBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valid = checkNameInputForValidity(e.target.value);
-    if (!valid && !state.lastName.error) {
-      setState({
-        ...state,
-        lastName: {
-          data: state.lastName.data,
-          error: !valid,
-        },
-      });
-    }
+  const handleSubmit = () => {
+    const firstNameValidity = checkInputForNotEmpty(state.firstName.data);
+    const lastNameValidity = checkInputForNotEmpty(state.lastName.data);
+    const payloadData = {
+      firstName: state.firstName.data,
+      lastName: state.lastName.data,
+      prefix: state.prefix.data,
+      suffix: state.suffix.data,
+      pronouns: state.pronouns.data,
+    };
+    const error = !(firstNameValidity && lastNameValidity);
+    submitHandler({
+      data: payloadData,
+      error,
+    });
+    nextHandler();
   };
   //!RENDER
   return (
-    <FormContainer
-      title="Name"
-      nextHandler={nextHandler}
-      prevHandler={prevHandler}
-    >
+    <FormContainer title="Name" nextHandler={handleSubmit} prevHandler={prevHandler}>
       <SelectInput
-        error={false}
-        errorMessage={""}
         label={"Prefix:"}
         labelID={"prefix"}
         labelName={"prefix"}
-        onChange={handlePrefixChange}
+        onChange={(e) => handleSelectInputChange(e, state, setState, prefixes)}
         options={[...prefixes]}
-        required={true}
+        required={false}
         value={state.prefix.data}
       />
       <TextInput
         label="First:"
         labelID="firstName"
         labelName="firstName"
-        onChange={handleFirstNameChange}
-        onBlur={handleFirstNameBlur}
+        onChange={handleNameInput}
+        onBlur={handleNameBlur}
         required={true}
         errorMessage="Please Enter Your First Name"
         placeholder="John/Jane"
@@ -169,8 +104,8 @@ function NameForm({
         label="Last:"
         labelID="lastName"
         labelName="lastName"
-        onChange={handleLastNameChange}
-        onBlur={handleLastNameBlur}
+        onChange={handleNameInput}
+        onBlur={handleNameBlur}
         required={true}
         errorMessage="Please Enter Your Last Name"
         placeholder="Doe"
@@ -178,34 +113,26 @@ function NameForm({
         value={state.lastName.data}
       />
       <SelectInput
-        error={false}
-        errorMessage={""}
         label={"Suffix:"}
         labelID={"suffix"}
         labelName={"suffix"}
-        onChange={handleSuffixChange}
+        onChange={(e) => handleSelectInputChange(e, state, setState, suffixes)}
         options={[...suffixes]}
-        required={true}
+        required={false}
         value={state.suffix.data}
       />
       <SelectInput
-        error={false}
-        errorMessage={""}
         label={"Pronouns:"}
         labelID={"pronouns"}
         labelName={"pronouns"}
         onChange={handlePronounChange}
         options={pronouns.map(convertPronounGroupIntoString)}
-        required={true}
-        value={convertPronounGroupIntoString(state.pronoun.data)}
+        required={false}
+        value={convertPronounGroupIntoString(state.pronouns.data)}
         addDataAttribute={true}
       />
     </FormContainer>
   );
-}
-
-function checkNameInputForValidity(name: string): boolean {
-  return name.length !== 0;
 }
 function convertPronounGroupIntoString(pronounGroup: PronounType): string {
   if (pronounGroup.length === 1) {
@@ -214,9 +141,7 @@ function convertPronounGroupIntoString(pronounGroup: PronounType): string {
     if (pronounGroup.length === 3) {
       return `(${pronounGroup[0]}/${pronounGroup[1]}/${pronounGroup[2]})`;
     } else {
-      throw new Error(
-        "Incorrect Pronoun Group Supplied to Func Call in NameForm.tsx"
-      );
+      throw new Error("Incorrect Pronoun Group Supplied to Func Call in NameForm.tsx");
     }
   }
 }
