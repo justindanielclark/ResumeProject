@@ -1,3 +1,4 @@
+import React from "react";
 import { StatefulData } from "../types/resumeData";
 
 function handleTextInputChange<T>(

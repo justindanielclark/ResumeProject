@@ -7,4 +7,9 @@ function checkValidZIP(zip: string): boolean {
   return reg.test(zip);
 }
 
-export { checkInputForNotEmpty, checkValidZIP };
+function checkValidPhoneNumber(str: string): boolean {
+  const phoneRegex = new RegExp(/\(\d{3}\)\d{3}-\d{4}/);
+  return phoneRegex.test(str);
+}
+
+export { checkInputForNotEmpty, checkValidZIP, checkValidPhoneNumber };

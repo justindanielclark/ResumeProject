@@ -1,20 +1,14 @@
 import { AppState, TransitionState } from "./types/appState";
-import {
-  NameData,
-  JobData,
-  EducationData,
-  ReferenceData,
-  Address,
-  Payload,
-} from "./types/resumeData";
+import { NameData, Address, Payload, PhoneContactData } from "./types/resumeData";
 import reducer from "./utils/reducer";
 import { useEffect, useReducer } from "react";
 import NameForm from "./components/Forms/NameForm";
 import { pronouns } from "./types/resumeData";
 import AddressContactForm from "./components/Forms/AddressContactForm";
+import PhoneContactForm from "./components/Forms/PhoneContactForm";
 
 const startState: AppState = {
-  currentSlide: 1,
+  currentSlide: 2,
   transitionSlide: 1,
   transitioning: "none",
   resume: {
@@ -39,9 +33,9 @@ const startState: AppState = {
     },
     contactPhone: {
       data: {
-        home: [],
-        mobile: [],
-        other: [],
+        home: "",
+        mobile: "",
+        other: "",
       },
       prevRendered: false,
     },
@@ -77,21 +71,13 @@ function App() {
   const handleSubmitName = (payload: Payload<NameData>) => {
     dispatch({ type: "submitName", payload });
   };
-  const handleSubmitAddressContactInfo = (payload: { data: Address; error: boolean }) => {
-    dispatch({ type: "submitContactInfo", payload });
+  const handleSubmitAddressContactInfo = (payload: Payload<Address>) => {
+    dispatch({ type: "submitAddressContactInfo", payload });
   };
-  const handleSubmitWorkExperience = (payload: { data: Array<JobData>; error: boolean }) => {
-    dispatch({ type: "submitWorkExperience", payload });
+  const handleSubmitPhoneContactInfo = (payload: Payload<PhoneContactData>) => {
+    dispatch({ type: "submitPhoneContactInfo", payload });
   };
-  const handleSubmitEducation = (payload: { data: Array<EducationData>; error: boolean }) => {
-    dispatch({ type: "submitEducation", payload });
-  };
-  const handleSubmitSkills = (payload: { data: Array<string>; error: boolean }) => {
-    dispatch({ type: "submitSkills", payload });
-  };
-  const handleSubmitReferences = (payload: { data: Array<ReferenceData>; error: boolean }) => {
-    dispatch({ type: "submitReferences", payload });
-  };
+
   const renderForms = (
     transitioning: TransitionState,
     currentIndex: number,
@@ -134,6 +120,17 @@ function App() {
               submitHandler={handleSubmitAddressContactInfo}
               prevRendered={state.resume.contactAddress.prevRendered}
               propState={state.resume.contactAddress.data}
+            />
+          );
+        }
+        case 2: {
+          return (
+            <PhoneContactForm
+              nextHandler={dummyHandler}
+              prevHandler={dummyHandler}
+              submitHandler={handleSubmitPhoneContactInfo}
+              prevRendered={state.resume.contactPhone.prevRendered}
+              propState={state.resume.contactPhone.data}
             />
           );
         }

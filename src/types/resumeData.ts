@@ -19,9 +19,9 @@ type NameData = {
   pronouns: PronounType;
 };
 type PhoneContactData = {
-  home: Array<string>;
-  mobile: Array<string>;
-  other: Array<string>;
+  home: string;
+  mobile: string;
+  other: string;
 };
 type WebContactData = {
   email: Array<string>;

@@ -1,12 +1,16 @@
 import React from "react";
 
 type Props = {
+  //Required
   required: boolean;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
   labelName: string;
   labelID: string;
+  //Optional
+  type?: "tel" | "email" | "text" | "password" | "search";
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   error?: boolean;
   errorMessage?: string;
@@ -17,6 +21,7 @@ function TextInput({
   label,
   onChange,
   onBlur,
+  onKeyDown,
   required,
   placeholder,
   error,
@@ -24,6 +29,7 @@ function TextInput({
   value,
   labelName,
   labelID,
+  type,
 }: Props) {
   const generateTopLabel = (error: boolean, errorMessage: string) => {
     if (error) {
@@ -50,12 +56,13 @@ function TextInput({
       {error && errorMessage ? generateTopLabel(error, errorMessage) : generateTopLabel(false, "")}
       <input
         className="placeholder-slate-500 px-2"
-        type="text"
+        type={type ? type : "text"}
         name={labelName}
         id={labelID}
         value={value}
-        onChange={onChange}
+        onChange={onChange ? onChange : undefined}
         onBlur={onBlur ? onBlur : undefined}
+        onKeyDown={onKeyDown ? onKeyDown : undefined}
         required={required}
         placeholder={placeholder ? placeholder : ""}
       />
