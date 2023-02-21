@@ -11,10 +11,12 @@ type Props = {
 
 function FormContainer({ title, children, nextHandler, prevHandler }: Props) {
   return (
-    <form className="bg-slate-200 border-2 rounded-md border-slate-900 text-slate-800 p-4 absolute top-1/2 left-1/2 h-fit -translate-x-1/2 -translate-y-1/2 w-96">
-      <h1 className="border-b-2 border-slate-700 text-xl font-bold mb-2">{title}</h1>
-      {children}
-      <div className="flex flex-row justify-between mt-2">
+    <form className="bg-slate-300 border-2 rounded border-slate-900 text-slate-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 max-h-96 overflow-hidden">
+      <h1 className="py-2 px-1 border-b-2 text-slate-100 bg-slate-800 border-slate-700 text-2xl font-bold sticky">
+        {title}
+      </h1>
+      <div className="overflow-y-auto max-h-72">{children}</div>
+      <div className="flex flex-row justify-between bg-slate-800 p-2">
         {prevHandler ? (
           <CancelButton type="button" handleClick={prevHandler}>
             {"<<< Prev"}

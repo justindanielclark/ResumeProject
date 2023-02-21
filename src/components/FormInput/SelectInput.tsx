@@ -29,18 +29,18 @@ function SelectInput({
     if (error) {
       return (
         <div className="flex gap-4">
-          <label className="font-bold">
-            {required ? <span className="text-xs absolute block left-2.5">*</span> : undefined}
+          <label className="font-bold text-sm relative px-2 underline">
             {label}
+            {required ? <span className="text-xs absolute block left-2.5">*</span> : undefined}
           </label>
           <p>{errorMessage}</p>
         </div>
       );
     }
     return (
-      <label className="font-bold">
-        {required ? <span className="text-xs absolute block left-2.5">*</span> : undefined}
+      <label className="font-bold text-sm relative px-2 underline">
         {label}
+        {required ? <span className="text-xs absolute block left-2.5">*</span> : undefined}
       </label>
     );
   };
@@ -59,10 +59,10 @@ function SelectInput({
   };
 
   return (
-    <div className="flex flex-col justify-start">
+    <div className="flex flex-col justify-start mb-1 first:mt-1 last:mb-2">
       {error && errorMessage ? generateTopLabel(error, errorMessage) : generateTopLabel(false, "")}
       <select
-        className="pl-1"
+        className="mx-3 px-1 outline-slate-500  rounded-md h-6"
         name={labelName}
         id={labelID}
         value={value ? value : undefined}

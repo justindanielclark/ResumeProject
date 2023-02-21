@@ -1,4 +1,4 @@
-import { NameData, Address, PhoneContactData } from "./resumeData";
+import { NameData, Address, PhoneContactData, WebContactData } from "./resumeData";
 
 interface WithPayload<Type> {
   payload: {
@@ -19,6 +19,10 @@ interface PhoneContactAction extends WithPayload<PhoneContactData> {
   type: "submitPhoneContactInfo";
 }
 
-type ReducerAction = NameAction | AddressContactAction | PhoneContactAction;
+interface WebContactAction extends WithPayload<WebContactData> {
+  type: "submitWebContactInfo";
+}
+
+type ReducerAction = NameAction | AddressContactAction | PhoneContactAction | WebContactAction;
 
 export default ReducerAction;

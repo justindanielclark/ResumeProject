@@ -5,6 +5,7 @@ function CancelButton({ children, handleClick }: DerivedButtonProps) {
   const uniqueClasses = [
     "text-slate-100",
     "bg-red-700",
+    "hover:bg-red-800",
     "border-r-red-900",
     "border-b-red-900",
   ];

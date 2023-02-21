@@ -79,58 +79,60 @@ function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRend
   //!RENDER
   return (
     <FormContainer title="Name" nextHandler={handleSubmit} prevHandler={prevHandler}>
-      <SelectInput
-        label={"Prefix:"}
-        labelID={"prefix"}
-        labelName={"prefix"}
-        onChange={(e) => handleSelectInputChange(e, state, setState, prefixes)}
-        options={[...prefixes]}
-        required={false}
-        value={state.prefix.data}
-      />
-      <TextInput
-        label="First:"
-        labelID="firstName"
-        labelName="firstName"
-        onChange={handleNameInput}
-        onBlur={handleNameBlur}
-        required={true}
-        errorMessage="Please Enter Your First Name"
-        placeholder="John/Jane"
-        error={state.firstName.error}
-        value={state.firstName.data}
-      />
-      <TextInput
-        label="Last:"
-        labelID="lastName"
-        labelName="lastName"
-        onChange={handleNameInput}
-        onBlur={handleNameBlur}
-        required={true}
-        errorMessage="Please Enter Your Last Name"
-        placeholder="Doe"
-        error={state.lastName.error}
-        value={state.lastName.data}
-      />
-      <SelectInput
-        label={"Suffix:"}
-        labelID={"suffix"}
-        labelName={"suffix"}
-        onChange={(e) => handleSelectInputChange(e, state, setState, suffixes)}
-        options={[...suffixes]}
-        required={false}
-        value={state.suffix.data}
-      />
-      <SelectInput
-        label={"Pronouns:"}
-        labelID={"pronouns"}
-        labelName={"pronouns"}
-        onChange={handlePronounChange}
-        options={pronouns.map(convertPronounGroupIntoString)}
-        required={false}
-        value={convertPronounGroupIntoString(state.pronouns.data)}
-        addDataAttribute={true}
-      />
+      <div>
+        <SelectInput
+          label={"Prefix:"}
+          labelID={"prefix"}
+          labelName={"prefix"}
+          onChange={(e) => handleSelectInputChange(e, state, setState, prefixes)}
+          options={[...prefixes]}
+          required={false}
+          value={state.prefix.data}
+        />
+        <TextInput
+          label="First:"
+          labelID="firstName"
+          labelName="firstName"
+          onChange={handleNameInput}
+          onBlur={handleNameBlur}
+          required={true}
+          errorMessage="Please Enter Your First Name"
+          placeholder="John/Jane"
+          error={state.firstName.error}
+          value={state.firstName.data}
+        />
+        <TextInput
+          label="Last:"
+          labelID="lastName"
+          labelName="lastName"
+          onChange={handleNameInput}
+          onBlur={handleNameBlur}
+          required={true}
+          errorMessage="Please Enter Your Last Name"
+          placeholder="Doe"
+          error={state.lastName.error}
+          value={state.lastName.data}
+        />
+        <SelectInput
+          label={"Suffix:"}
+          labelID={"suffix"}
+          labelName={"suffix"}
+          onChange={(e) => handleSelectInputChange(e, state, setState, suffixes)}
+          options={[...suffixes]}
+          required={false}
+          value={state.suffix.data}
+        />
+        <SelectInput
+          label={"Pronouns:"}
+          labelID={"pronouns"}
+          labelName={"pronouns"}
+          onChange={handlePronounChange}
+          options={pronouns.map(convertPronounGroupIntoString)}
+          required={false}
+          value={convertPronounGroupIntoString(state.pronouns.data)}
+          addDataAttribute={true}
+        />
+      </div>
     </FormContainer>
   );
 }

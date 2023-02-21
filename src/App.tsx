@@ -1,14 +1,15 @@
 import { AppState, TransitionState } from "./types/appState";
-import { NameData, Address, Payload, PhoneContactData } from "./types/resumeData";
+import { NameData, Address, Payload, PhoneContactData, WebContactData } from "./types/resumeData";
 import reducer from "./utils/reducer";
 import { useEffect, useReducer } from "react";
 import NameForm from "./components/Forms/NameForm";
 import { pronouns } from "./types/resumeData";
 import AddressContactForm from "./components/Forms/AddressContactForm";
 import PhoneContactForm from "./components/Forms/PhoneContactForm";
+import WebsiteContactForm from "./components/Forms/WebsiteContactForm";
 
 const startState: AppState = {
-  currentSlide: 2,
+  currentSlide: 3,
   transitionSlide: 1,
   transitioning: "none",
   resume: {
@@ -41,7 +42,11 @@ const startState: AppState = {
     },
     contactWeb: {
       data: {
-        email: [],
+        email: [
+          "jclark@prominentescrow.com",
+          "jclark@prominentescrow.com",
+          "jclark@prominentescrow.com",
+        ],
         websites: [],
       },
       prevRendered: false,
@@ -77,7 +82,9 @@ function App() {
   const handleSubmitPhoneContactInfo = (payload: Payload<PhoneContactData>) => {
     dispatch({ type: "submitPhoneContactInfo", payload });
   };
-
+  const handleSubmitWebsiteContactInfo = (payload: Payload<WebContactData>) => {
+    dispatch({ type: "submitWebContactInfo", payload });
+  };
   const renderForms = (
     transitioning: TransitionState,
     currentIndex: number,
@@ -131,6 +138,17 @@ function App() {
               submitHandler={handleSubmitPhoneContactInfo}
               prevRendered={state.resume.contactPhone.prevRendered}
               propState={state.resume.contactPhone.data}
+            />
+          );
+        }
+        case 3: {
+          return (
+            <WebsiteContactForm
+              nextHandler={dummyHandler}
+              prevHandler={dummyHandler}
+              submitHandler={handleSubmitWebsiteContactInfo}
+              prevRendered={state.resume.contactWeb.prevRendered}
+              propState={state.resume.contactWeb.data}
             />
           );
         }

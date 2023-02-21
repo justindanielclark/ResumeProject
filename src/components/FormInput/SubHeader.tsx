@@ -6,7 +6,7 @@ type Props = {
 
 function SubHeader({ title }: Props) {
   return (
-    <h2 className="mx-auto w-fit border-b-2 border-slate-600 font-bold text-md">
+    <h2 className="w-full border-b border-slate-600 border-opacity-50 relative text-slate-100 px-1 bg-slate-800 font-bold text-lg">
       {title}
     </h2>
   );
