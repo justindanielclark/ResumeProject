@@ -95,5 +95,6 @@ export type {
   PronounType,
   StatefulData,
   Payload,
+  WebInfoType,
 };
 export default ResumeData;

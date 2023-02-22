@@ -1,18 +1,31 @@
 import React, { useState } from "react";
-import { WebContactData, Payload, StatefulData } from "../../types/resumeData";
+import { WebContactData, Payload } from "../../types/resumeData";
 import FormContainer from "../FormContainer/FormContainer";
-import { checkValidEmail, checkValidWebsiteAddress } from "../../utils/inputValidation";
+import {
+  checkInputForNotEmpty,
+  checkValidEmail,
+  checkValidWebsiteAddress,
+} from "../../utils/inputValidation";
 import SubHeader from "../FormInput/SubHeader";
+import FormSubSection from "./FormSubSection";
 import TextInput from "../FormInput/TextInput";
-import TextInputWithSubButton from "../FormInput/TextInputWithSubButton";
 import SubHeaderWithAddButton from "../FormInput/SubHeaderWithAddButton";
+import numberings from "../../data/numberings";
+import emailExamples from "../../data/emailExamples";
+import websiteExamples from "../../data/websiteExamples";
 
-type inputsToRenderState = {
-  emails: number;
-  websites: number;
+type StatefulEmailData = {
+  email: string;
+  error: boolean;
 };
-type State = StatefulData<WebContactData>;
-
+type StatefulWebsiteData = {
+  URLData: { URL: string; error: boolean };
+  websiteNameData: { websiteName: string; error: boolean };
+};
+type State = {
+  emails: Array<StatefulEmailData>;
+  websites: Array<StatefulWebsiteData>;
+};
 type Props = {
   propState: WebContactData;
   prevRendered: boolean;
@@ -27,227 +40,375 @@ function PhoneContactForm({
   propState,
   prevRendered,
 }: Props) {
-  const [inputsToRender, setInputsToRender] = useState<inputsToRenderState>(
-    createInputsToRenderState(propState)
-  );
   const [state, setState] = useState<State>(createState(propState));
-
+  function createState(propState: WebContactData): State {
+    const emails: Array<StatefulEmailData> = [];
+    const websites: Array<StatefulWebsiteData> = [];
+    if (!prevRendered && propState.email.length === 0) {
+      emails.push({ email: "", error: false });
+    } else {
+      emails.push(
+        ...propState.email.map((email) => {
+          return { email, error: checkValidEmail(email) };
+        })
+      );
+    }
+    if (!prevRendered && propState.websites.length === 0) {
+      websites.push({
+        URLData: {
+          error: false,
+          URL: "",
+        },
+        websiteNameData: {
+          error: false,
+          websiteName: "",
+        },
+      });
+    } else {
+      websites.push(
+        ...propState.websites.map((website) => {
+          return {
+            URLData: {
+              URL: website.URL,
+              error:
+                website.URL === "" && website.websiteName === ""
+                  ? false
+                  : !checkValidWebsiteAddress(website.URL),
+            },
+            websiteNameData: {
+              websiteName: website.websiteName,
+              error:
+                website.URL === "" && website.websiteName === ""
+                  ? false
+                  : !checkInputForNotEmpty(website.websiteName),
+            },
+          };
+        })
+      );
+    }
+    return {
+      emails,
+      websites,
+    };
+  }
   function handleClickDeleteEmail(
     e: React.MouseEvent<HTMLImageElement, MouseEvent>,
     index: number
   ): void {
-    const newEmails = state.email.data.filter((val, idx) => {
+    const newEmails = state.emails.filter((val, idx) => {
       return idx !== index;
     });
     setState({
       ...state,
-      email: {
-        data: newEmails,
-        error: doEmailsHaveErrors(newEmails),
+      emails: newEmails,
+    });
+  }
+  function handleClickAddWebsite(): void {
+    const newWebsites = [...state.websites];
+    newWebsites.push({
+      URLData: {
+        URL: "",
+        error: false,
       },
+      websiteNameData: {
+        websiteName: "",
+        error: false,
+      },
+    });
+    setState({
+      ...state,
+      websites: newWebsites,
+    });
+  }
+  function handleClickAddEmail(): void {
+    const newEmails = state.emails.map((el) => el);
+    newEmails.push({ email: "", error: false });
+    setState({
+      ...state,
+      emails: newEmails,
+    });
+  }
+  function handleClickDeleteWebsite(
+    e: React.MouseEvent<HTMLImageElement, MouseEvent>,
+    index: number
+  ): void {
+    const newWebsites = state.websites.filter((val, idx) => idx !== index);
+    setState({
+      ...state,
+      websites: newWebsites,
     });
   }
   function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
     const inputValue = e.target.value;
-    const emails = [...state.email.data];
-    emails[index] = inputValue;
+    const emails: Array<StatefulEmailData> = state.emails.map((email) => {
+      return {
+        email: email.email,
+        error: email.error,
+      };
+    });
+    emails[index] = {
+      email: inputValue,
+      error: false,
+    };
+    setState({
+      ...state,
+      emails,
+    });
+  }
+  function handleEmailBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
+    const inputValue = e.target.value;
+    const emails: Array<StatefulEmailData> = state.emails.map((email) => {
+      return {
+        email: email.email,
+        error: email.error,
+      };
+    });
+    if (index === 0) {
+      emails[index] = {
+        email: inputValue,
+        error: !checkValidEmail(inputValue),
+      };
+    } else {
+      emails[index] = {
+        email: inputValue,
+        error: inputValue === "" ? false : !checkValidEmail(inputValue),
+      };
+    }
 
     setState({
       ...state,
-      email: {
-        data: emails,
-        error: state.email.error,
-      },
+      emails,
     });
   }
-  function createInputsToRenderState(propState: WebContactData): inputsToRenderState {
-    const State: inputsToRenderState = {
-      emails: propState.email.length === 0 ? 1 : propState.email.length,
-      websites: propState.websites.length === 0 ? 1 : propState.websites.length,
-    };
-    return State;
-  }
-  function createState(propState: WebContactData): State {
-    const state: State = {
-      email: {
-        data: [...propState.email],
-        error: prevRendered ? doEmailsHaveErrors(propState.email) : false,
-      },
-      websites: {
-        data: [...propState.websites],
-        error: prevRendered
-          ? propState.websites.reduce((acc, cur) => {
-              if (acc) return true;
-              return !checkValidEmail(cur.URL);
-            }, false)
-          : false,
+  function handleWebsiteNameChange(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
+    const inputValue = e.target.value;
+    const websites = [...state.websites];
+    websites[index] = {
+      URLData: websites[index].URLData,
+      websiteNameData: {
+        websiteName: inputValue,
+        error: false,
       },
     };
-    return state;
+    setState({
+      ...state,
+      websites,
+    });
   }
-  function renderEmails(emails: Array<string>): JSX.Element {
-    console.log(emails);
+  function handleWebsiteURLChange(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
+    const inputValue = e.target.value;
+    const websites = [...state.websites];
+    websites[index] = {
+      URLData: {
+        URL: inputValue,
+        error: false,
+      },
+      websiteNameData: websites[index].websiteNameData,
+    };
+    setState({
+      ...state,
+      websites,
+    });
+  }
+  function handleWebsiteNameBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
+    const websites: Array<StatefulWebsiteData> = state.websites.map((website) => {
+      return {
+        URLData: { ...website.URLData },
+        websiteNameData: { ...website.websiteNameData },
+      };
+    });
+    if (websites[index].websiteNameData.websiteName === "" && websites[index].URLData.URL === "") {
+      websites[index].websiteNameData.error = false;
+    } else if (
+      websites[index].websiteNameData.websiteName === "" &&
+      websites[index].URLData.URL !== ""
+    ) {
+      websites[index].websiteNameData.error = true;
+    }
+    setState({
+      ...state,
+      websites,
+    });
+  }
+  function handleWebsiteURLBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
+    const websites: Array<StatefulWebsiteData> = state.websites.map((website) => {
+      return {
+        URLData: { ...website.URLData },
+        websiteNameData: { ...website.websiteNameData },
+      };
+    });
+    if (websites[index].websiteNameData.websiteName === "" && websites[index].URLData.URL === "") {
+      websites[index].URLData.error = false;
+    } else if (
+      websites[index].websiteNameData.websiteName !== "" &&
+      websites[index].URLData.URL === ""
+    ) {
+      websites[index].URLData.error = true;
+    }
+    setState({
+      ...state,
+      websites,
+    });
+  }
+  function renderEmails(emails: Array<StatefulEmailData>): JSX.Element {
     const fields: Array<JSX.Element> = [];
-    fields.push(
-      <TextInput
-        key={0}
-        label="Primary:"
-        labelID=""
-        labelName=""
-        required
-        onChange={(e) => handleEmailChange(e, 0)}
-        onBlur={dummyFunc}
-        placeholder={"jdoe@doemail.com"}
-        value={state.email.data[0]}
-        type="email"
-      />
-    );
-    if (emails.length >= 2) {
-      fields.push(
-        <TextInputWithSubButton
-          key={1}
-          label="Secondary:"
-          labelID="secondEmail"
-          labelName="secondEmail"
-          required={false}
-          onChange={(e) => handleEmailChange(e, 1)}
-          onBlur={dummyFunc}
-          placeholder={"jdoe@doemail.com"}
-          handleDelete={(e) => handleClickDeleteEmail(e, 1)}
-          value={state.email.data[1]}
-          type="email"
-        />
-      );
-    }
-    if (emails.length >= 3) {
-      fields.push(
-        <TextInputWithSubButton
-          key={2}
-          label="Tertiary:"
-          labelID="thirdEmail"
-          labelName="thirdEmail"
-          required={false}
-          onChange={(e) => handleEmailChange(e, 2)}
-          onBlur={dummyFunc}
-          placeholder={"jdoe@doemail.com"}
-          handleDelete={(e) => handleClickDeleteEmail(e, 2)}
-          value={state.email.data[2]}
-          type="email"
-        />
-      );
-    }
-    if (emails.length >= 4) {
-      throw new Error("Unexpected Amount of Emails Registered");
-    }
+    emails.forEach((email, idx) => {
+      if (idx === 0) {
+        fields.push(
+          <FormSubSection>
+            <TextInput
+              key={idx}
+              label={`${numberings[idx]}:`}
+              labelID={`${numberings[idx]}Email`}
+              labelName={`${numberings[idx]}Email`}
+              required={true}
+              onChange={(e) => handleEmailChange(e, idx)}
+              onBlur={(e) => handleEmailBlur(e, idx)}
+              placeholder={`${emailExamples[idx]}`}
+              value={email.email}
+              error={email.error}
+              errorMessage="A Valid Primary Email Address is Required"
+              type="email"
+            />
+          </FormSubSection>
+        );
+      } else {
+        fields.push(
+          <FormSubSection onDeleteClick={(e) => handleClickDeleteEmail(e, idx)}>
+            <TextInput
+              key={idx}
+              label={`${numberings[idx]}:`}
+              labelID={`${numberings[idx]}Email`}
+              labelName={`${numberings[idx]}Email`}
+              required={false}
+              onChange={(e) => handleEmailChange(e, idx)}
+              onBlur={(e) => handleEmailBlur(e, idx)}
+              placeholder={`${emailExamples[idx]}`}
+              value={email.email}
+              error={email.error}
+              errorMessage="A Valid Email Address is Required"
+              type="email"
+            />
+          </FormSubSection>
+        );
+      }
+    });
     return <>{fields}</>;
   }
-  function renderWebsites(websites: Array<{ URL: string; websiteName: string }>): JSX.Element {
+  function renderWebsites(websites: Array<StatefulWebsiteData>): JSX.Element {
     const fields: Array<JSX.Element> = [];
-    fields.push(
-      <React.Fragment key={0}>
-        <TextInput
-          label="Primary Site Name:"
-          labelID="primarySite"
-          labelName="primarySite"
-          required={false}
-          onChange={dummyFunc}
-          onBlur={dummyFunc}
-          placeholder={"GitHub"}
-        />
-        <TextInput
-          label="Primary URL:"
-          labelID="primaryURL"
-          labelName="primaryURL"
-          required={false}
-          onChange={dummyFunc}
-          onBlur={dummyFunc}
-          placeholder={"github.com"}
-        />
-      </React.Fragment>
-    );
-    if (websites.length >= 2) {
-      fields.push(
-        <React.Fragment key={1}>
-          <TextInputWithSubButton
-            key={1}
-            label="Secondary Site Name:"
-            labelID="secondarySite"
-            labelName="secondarySite"
-            required={false}
-            onChange={dummyFunc}
-            onBlur={dummyFunc}
-            placeholder={"Facebook"}
-            handleDelete={dummyFunc}
-          />
-          <TextInput
-            label="Secondary URL:"
-            labelID="secondaryURL"
-            labelName="secondaryURL"
-            required={false}
-            onChange={dummyFunc}
-            onBlur={dummyFunc}
-            placeholder={"Facebook.com/profiles_jdoe"}
-          />
-        </React.Fragment>
-      );
-    }
-    if (websites.length >= 3) {
-      fields.push(
-        <React.Fragment key={2}>
-          <TextInputWithSubButton
-            key={2}
-            label="Tertiary Site Name:"
-            labelID="secondarySite"
-            labelName="secondarySite"
-            required={false}
-            onChange={dummyFunc}
-            onBlur={dummyFunc}
-            placeholder={"LinkedIn"}
-            handleDelete={dummyFunc}
-          />
-          <TextInput
-            label="Tertiary URL:"
-            labelID="tertiaryURL"
-            labelName="tertiaryURL"
-            required={false}
-            onChange={dummyFunc}
-            onBlur={dummyFunc}
-            placeholder={"LinkedIn.com/profiles_jdoe"}
-          />
-        </React.Fragment>
-      );
-    }
-    if (websites.length >= 4) {
-      throw new Error("Unexpected Amount of Emails Registered");
-    }
+    websites.forEach((website, idx) => {
+      if (idx === 0) {
+        fields.push(
+          <FormSubSection key={idx}>
+            <TextInput
+              label={`${numberings[idx]} Site Name:`}
+              labelID={`${numberings[idx]}SiteName`}
+              labelName={`${numberings[idx]}SiteName`}
+              required={false}
+              onChange={(e) => handleWebsiteNameChange(e, idx)}
+              onBlur={(e) => handleWebsiteNameBlur(e, idx)}
+              placeholder={websiteExamples[idx].siteName}
+              value={website.websiteNameData.websiteName}
+              error={website.websiteNameData.error}
+              errorMessage="Required If You Enter A Site URL"
+            />
+            <TextInput
+              label={`${numberings[idx]} Site URL:`}
+              labelID={`${numberings[idx]}URL`}
+              labelName={`${numberings[idx]}URL`}
+              required={false}
+              onChange={(e) => handleWebsiteURLChange(e, idx)}
+              onBlur={(e) => handleWebsiteURLBlur(e, idx)}
+              placeholder={websiteExamples[idx].URL}
+              value={website.URLData.URL}
+              error={website.URLData.error}
+              errorMessage="Please Enter A Valid URL"
+            />
+          </FormSubSection>
+        );
+      } else {
+        fields.push(
+          <FormSubSection key={idx} onDeleteClick={(e) => handleClickDeleteWebsite(e, idx)}>
+            <TextInput
+              label={`${numberings[idx]} Site Name:`}
+              labelID={`${numberings[idx]}SiteName`}
+              labelName={`${numberings[idx]}SiteName`}
+              required={false}
+              onChange={(e) => handleWebsiteNameChange(e, idx)}
+              onBlur={(e) => handleWebsiteNameBlur(e, idx)}
+              placeholder={websiteExamples[idx].siteName}
+              value={website.websiteNameData.websiteName}
+              error={website.websiteNameData.error}
+              errorMessage="Required If You Enter A Site URL"
+            />
+            <TextInput
+              label={`${numberings[idx]} Site URL:`}
+              labelID={`${numberings[idx]}URL`}
+              labelName={`${numberings[idx]}URL`}
+              required={false}
+              onChange={(e) => handleWebsiteURLChange(e, idx)}
+              onBlur={(e) => handleWebsiteURLBlur(e, idx)}
+              placeholder={websiteExamples[idx].URL}
+              value={website.URLData.URL}
+              error={website.URLData.error}
+              errorMessage="Please Enter A Valid URL"
+            />
+          </FormSubSection>
+        );
+      }
+    });
     return <>{fields}</>;
   }
-  function renderEmailHeader(emails: Array<string>): JSX.Element {
+  function renderEmailHeader(emails: Array<StatefulEmailData>): JSX.Element {
+    const title = "Email:";
     if (emails.length < 3) {
-      return <SubHeaderWithAddButton handleAdd={prevHandler} title="Email:" />;
+      return <SubHeaderWithAddButton handleAdd={handleClickAddEmail} title={title} />;
     }
-    return <SubHeader title="Email:" />;
+    return <SubHeader title={title} />;
   }
-  function doEmailsHaveErrors(emails: Array<string>): boolean {
-    return emails.reduce((acc, cur) => {
-      if (acc) return true;
-      return !checkValidEmail(cur);
-    }, false);
+  function renderWebsitesHeader(websites: Array<StatefulWebsiteData>): JSX.Element {
+    const title = "Websites:";
+    if (websites.length < 3) {
+      return <SubHeaderWithAddButton handleAdd={handleClickAddWebsite} title={title} />;
+    }
+    return <SubHeader title={title} />;
   }
-  const dummyFunc = () => {
-    console.log("hit");
-  };
   function handleSubmit() {
-    //   const hasErrors = !(!state.email.error && !state.websites.error);
-    //   const payloadData: Payload<WebContactData> = {
-    //     data: {
-    //       email: [...state.email.data],
-    //       websites: [...state.websites.data],
-    //     },
-    //     error: hasErrors,
-    //   };
-    //   submitHandler(payloadData);
-    //   nextHandler();
+    const emailErrors = state.emails.reduce((acc, cur, idx) => {
+      if (acc) {
+        return true;
+      } else {
+        if (idx === 0) {
+          return !checkValidEmail(cur.email);
+        }
+        return cur.error;
+      }
+    }, false);
+    const websiteErrors = state.websites.reduce((acc, cur) => {
+      if (acc) {
+        return true;
+      } else {
+        return cur.URLData.error || cur.websiteNameData.error;
+      }
+    }, false);
+    const payloadData: Payload<WebContactData> = {
+      data: {
+        email: state.emails.map((email) => email.email),
+        websites: state.websites.map((website) => {
+          return {
+            URL: website.URLData.URL,
+            websiteName: website.websiteNameData.websiteName,
+          };
+        }),
+      },
+      error: emailErrors || websiteErrors,
+    };
+    submitHandler({
+      data: payloadData.data,
+      error: payloadData.error,
+    });
+    nextHandler();
   }
   return (
     <FormContainer
@@ -256,10 +417,10 @@ function PhoneContactForm({
       prevHandler={prevHandler}
     >
       <>
-        {renderEmailHeader(state.email.data)}
-        {renderEmails(state.email.data)}
-        <SubHeaderWithAddButton handleAdd={prevHandler} title="Websites:" />
-        {renderWebsites(state.websites.data)}
+        {renderEmailHeader(state.emails)}
+        <div>{renderEmails(state.emails)}</div>
+        {renderWebsitesHeader(state.websites)}
+        <div>{renderWebsites(state.websites)}</div>
       </>
     </FormContainer>
   );

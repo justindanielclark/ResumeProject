@@ -15,6 +15,10 @@ const reducer = (state: State, action: ReducerAction): State => {
       stateField = "contactPhone";
       break;
     }
+    case "submitWebContactInfo": {
+      stateField = "contactWeb";
+      break;
+    }
   }
   return {
     ...state,

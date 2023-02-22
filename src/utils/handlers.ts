@@ -55,7 +55,6 @@ function handleTextInputBlur<T>(
     throw new Error("Attempted to access a field that does not exist in state");
   }
 }
-
 function handleSelectInputChange<T>(
   e: React.ChangeEvent<HTMLSelectElement>,
   state: StatefulData<T>,

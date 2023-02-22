@@ -42,12 +42,10 @@ const startState: AppState = {
     },
     contactWeb: {
       data: {
-        email: [
-          "jclark@prominentescrow.com",
-          "jclark@prominentescrow.com",
-          "jclark@prominentescrow.com",
+        email: [],
+        websites: [
+          /*{ URL: "www.facebook.com", websiteName: "Facebook" }*/
         ],
-        websites: [],
       },
       prevRendered: false,
     },
