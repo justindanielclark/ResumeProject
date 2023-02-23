@@ -71,7 +71,6 @@ function AddressContactForm({
   };
   return (
     <FormContainer title="Contact Information" nextHandler={nextHandler} prevHandler={prevHandler}>
-      <SubHeader title="Address" />
       <TextInput
         label="Street Address:"
         labelID="address1"

@@ -28,6 +28,7 @@ function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRend
   const [state, setState] = useState<State>({
     prefix: {
       data: propState.prefix,
+      error: false,
     },
     firstName: {
       data: propState.firstName,
@@ -39,9 +40,11 @@ function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRend
     },
     suffix: {
       data: propState.suffix,
+      error: false,
     },
     pronouns: {
       data: propState.pronouns,
+      error: false,
     },
   });
   //!HANDLERS
@@ -56,6 +59,7 @@ function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRend
       ...state,
       pronouns: {
         data: pronouns[e.target.selectedIndex],
+        error: false,
       },
     });
   };
@@ -76,7 +80,6 @@ function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRend
     });
     nextHandler();
   };
-  //!RENDER
   return (
     <FormContainer title="Name" nextHandler={handleSubmit} prevHandler={prevHandler}>
       <div>

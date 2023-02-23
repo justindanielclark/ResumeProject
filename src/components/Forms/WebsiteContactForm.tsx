@@ -9,7 +9,6 @@ import {
 import SubHeader from "../FormInput/SubHeader";
 import FormSubSection from "./FormSubSection";
 import TextInput from "../FormInput/TextInput";
-import SubHeaderWithAddButton from "../FormInput/SubHeaderWithAddButton";
 import numberings from "../../data/numberings";
 import emailExamples from "../../data/emailExamples";
 import websiteExamples from "../../data/websiteExamples";
@@ -363,14 +362,14 @@ function PhoneContactForm({
   function renderEmailHeader(emails: Array<StatefulEmailData>): JSX.Element {
     const title = "Email:";
     if (emails.length < 3) {
-      return <SubHeaderWithAddButton handleAdd={handleClickAddEmail} title={title} />;
+      return <SubHeader handleAdd={handleClickAddEmail} title={title} />;
     }
     return <SubHeader title={title} />;
   }
   function renderWebsitesHeader(websites: Array<StatefulWebsiteData>): JSX.Element {
     const title = "Websites:";
     if (websites.length < 3) {
-      return <SubHeaderWithAddButton handleAdd={handleClickAddWebsite} title={title} />;
+      return <SubHeader handleAdd={handleClickAddWebsite} title={title} />;
     }
     return <SubHeader title={title} />;
   }

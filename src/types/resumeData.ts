@@ -34,15 +34,7 @@ type Address = {
   state: string;
   zip: string;
 };
-type JobData = {
-  companyName: string;
-  jobTitle: string;
-  startDate: Date;
-  endDate: Date;
-  address: Address;
-  description: string;
-  skillsets: Array<string>;
-};
+
 type EducationData = {
   school: string;
   end: Date;
@@ -56,10 +48,40 @@ type ReferenceData = {
   title: string;
   job?: JobData;
 };
-type StatefulData<T> = {
+
+type JobData = {
+  companyName: string;
+  jobTitle: string;
+  startDate: Date;
+  endDate: Date;
+  address: Address;
+  description: string;
+};
+
+type ComplexType =
+  | WebInfoType
+  | NameData
+  | PhoneContactData
+  | WebContactData
+  | Address
+  | EducationData
+  | JobData
+  | ReferenceData;
+
+type StatefulDataHelper<T> = {
   [P in keyof T]: {
     data: T[P];
     error?: boolean;
+  };
+};
+type StatefulData<Type> = {
+  [Property in keyof Type]: {
+    data: Type[Property] extends Array<infer ArrayDataType>
+      ? Array<{ data: ArrayDataType; error: boolean }>
+      : Type[Property] extends ComplexType
+      ? StatefulDataHelper<Type[Property]>
+      : Type[Property];
+    error: boolean;
   };
 };
 

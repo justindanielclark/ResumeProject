@@ -14,7 +14,7 @@ function FormSubsection({ children, onDeleteClick }: Props) {
           src={minus}
           onClick={onDeleteClick}
           alt="deleteButtonImage"
-          className="h-4 w-4 absolute -right-0.5 -top-0.5 translate-y-1/4 -translate-x-1/4 cursor-pointer z-50"
+          className="h-4 w-4 absolute -right-0.5 -top-0.5 translate-y-1/4 -translate-x-1/4 cursor-pointer z-40"
         />
       ) : undefined}
       {children}

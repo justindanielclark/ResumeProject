@@ -200,8 +200,11 @@ function PhoneContactForm({
     nextHandler();
   }
   return (
-    <FormContainer title="Contact Information" nextHandler={handleSubmit} prevHandler={prevHandler}>
-      <SubHeader title="Phone:" />
+    <FormContainer
+      title="Phone Contact Information:"
+      nextHandler={handleSubmit}
+      prevHandler={prevHandler}
+    >
       <TextInput
         label="Mobile:"
         labelID="mobile"

@@ -1,5 +1,12 @@
 import { AppState, TransitionState } from "./types/appState";
-import { NameData, Address, Payload, PhoneContactData, WebContactData } from "./types/resumeData";
+import {
+  NameData,
+  Address,
+  Payload,
+  PhoneContactData,
+  WebContactData,
+  JobData,
+} from "./types/resumeData";
 import reducer from "./utils/reducer";
 import { useEffect, useReducer } from "react";
 import NameForm from "./components/Forms/NameForm";
@@ -7,6 +14,7 @@ import { pronouns } from "./types/resumeData";
 import AddressContactForm from "./components/Forms/AddressContactForm";
 import PhoneContactForm from "./components/Forms/PhoneContactForm";
 import WebsiteContactForm from "./components/Forms/WebsiteContactForm";
+import WorkExperienceForm from "./components/Forms/WorkExperienceForm";
 
 const startState: AppState = {
   currentSlide: 3,
@@ -83,6 +91,9 @@ function App() {
   const handleSubmitWebsiteContactInfo = (payload: Payload<WebContactData>) => {
     dispatch({ type: "submitWebContactInfo", payload });
   };
+  const handleSubmitWorkExperienceInfo = (payload: Payload<Array<JobData>>) => {
+    dispatch({ type: "submitWorkExperienceInfo", payload });
+  };
   const renderForms = (
     transitioning: TransitionState,
     currentIndex: number,
@@ -147,6 +158,17 @@ function App() {
               submitHandler={handleSubmitWebsiteContactInfo}
               prevRendered={state.resume.contactWeb.prevRendered}
               propState={state.resume.contactWeb.data}
+            />
+          );
+        }
+        case 4: {
+          return (
+            <WorkExperienceForm
+              nextHandler={dummyHandler}
+              prevHandler={dummyHandler}
+              submitHandler={handleSubmitWorkExperienceInfo}
+              prevRendered={state.resume.contactWeb.prevRendered}
+              propState={state.resume.workExperience.data}
             />
           );
         }

@@ -7,7 +7,7 @@ type Props = {
   labelName: string;
   labelID: string;
   //Optional
-  type?: "tel" | "email" | "text" | "password" | "search";
+  type?: "tel" | "email" | "text" | "password" | "search" | "date";
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -34,8 +34,8 @@ function TextInput({
   const generateTopLabel = (error: boolean, errorMessage: string) => {
     if (error) {
       return (
-        <div className="flex gap-4 items-end">
-          <label className="font-bold text-sm relative px-2 underline">
+        <div className="flex justify-between pr-3">
+          <label className="font-bold text-sm relative px-2 underline" htmlFor={labelName}>
             {label}
             {required ? <span className="text-xs relative inline-block -top-1">*</span> : undefined}
           </label>
@@ -44,7 +44,7 @@ function TextInput({
       );
     }
     return (
-      <label className="font-bold text-sm relative px-2 underline">
+      <label className="font-bold text-sm relative px-2 underline" htmlFor={labelName}>
         {label}
         {required ? <span className="text-xs relative inline-block -top-1">*</span> : undefined}
       </label>

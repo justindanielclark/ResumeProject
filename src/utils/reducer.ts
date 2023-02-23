@@ -19,6 +19,9 @@ const reducer = (state: State, action: ReducerAction): State => {
       stateField = "contactWeb";
       break;
     }
+    case "submitWorkExperienceInfo": {
+      stateField = "workExperience";
+    }
   }
   return {
     ...state,
