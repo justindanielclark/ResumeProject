@@ -20,12 +20,13 @@ function BaseButton({ children, handleClick, addlClasses, type }: Props) {
     "border-r-2",
     "border-b-2",
     "border-l-0",
+    "w-24",
+    "text-center",
+    "font-bold",
+    "hover:underline",
   ];
 
-  function createFinalClasses(
-    baseClasses: Array<string>,
-    addlClasses: Array<string>
-  ): string {
+  function createFinalClasses(baseClasses: Array<string>, addlClasses: Array<string>): string {
     const combinedClasses = [...baseClasses, ...addlClasses];
     return combinedClasses.join(" ");
   }

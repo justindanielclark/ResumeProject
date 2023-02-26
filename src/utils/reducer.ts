@@ -21,6 +21,15 @@ const reducer = (state: State, action: ReducerAction): State => {
     }
     case "submitWorkExperienceInfo": {
       stateField = "workExperience";
+      break;
+    }
+    case "submitEducationInfo": {
+      stateField = "education";
+      break;
+    }
+    case "submitNonCollegiateEducationInfo": {
+      stateField = "nonCollegiateEducation";
+      break;
     }
   }
   return {

@@ -9,26 +9,38 @@ function handleTextInputChange<T>(
 ): void {
   const inputValue = e.target.value;
   const stateField = e.target.name;
-  if (stateField in state) {
-    if ("error" in state[stateField as keyof StatefulData<T>]) {
-      setState({
-        ...state,
-        [stateField]: {
-          data: inputValue,
-          error: !validatorFunc(inputValue),
-        },
-      });
+  setState({
+    ...state,
+    [stateField]: {
+      data: inputValue,
+      error: !validatorFunc(inputValue),
+    },
+  });
+}
+
+function handleTextInputChangeWithArrayData<T>(
+  e: React.ChangeEvent<HTMLInputElement>,
+  idx: number,
+  state: Array<StatefulData<T>>,
+  setState: React.Dispatch<React.SetStateAction<Array<StatefulData<T>>>>
+): void {
+  const inputValue = e.target.value;
+  const stateField = e.target.name;
+  const newState: Array<StatefulData<T>> = state.map((data, index) => {
+    if (index !== idx) {
+      return data;
     } else {
-      setState({
-        ...state,
+      const newData: StatefulData<T> = {
+        ...data,
         [stateField]: {
           data: inputValue,
+          error: false,
         },
-      });
+      };
+      return newData;
     }
-  } else {
-    throw new Error("Attempted to access a field that does not exist in state");
-  }
+  });
+  setState(newState);
 }
 
 function handleTextInputBlur<T>(
@@ -39,22 +51,41 @@ function handleTextInputBlur<T>(
 ): void {
   const valid = validatorFunc(e.target.value);
   const stateField = e.target.name;
-  if (stateField in state) {
-    if (!valid) {
-      if ("error" in state[stateField as keyof StatefulData<T>]) {
-        setState({
-          ...state,
-          [stateField]: {
-            data: e.target.value,
-            error: !valid,
-          },
-        });
-      }
-    }
-  } else {
-    throw new Error("Attempted to access a field that does not exist in state");
-  }
+  setState({
+    ...state,
+    [stateField]: {
+      data: e.target.value,
+      error: !valid,
+    },
+  });
 }
+
+function handleTextInputBlurWithArrayData<T>(
+  e: React.ChangeEvent<HTMLInputElement>,
+  idx: number,
+  state: Array<StatefulData<T>>,
+  setState: React.Dispatch<React.SetStateAction<Array<StatefulData<T>>>>,
+  validatorFunc: (str: string) => boolean
+): void {
+  const inputValue = e.target.value;
+  const stateField = e.target.name;
+  const newState: Array<StatefulData<T>> = state.map((data, index) => {
+    if (index !== idx) {
+      return data;
+    } else {
+      const newData: StatefulData<T> = {
+        ...data,
+        [stateField]: {
+          data: inputValue,
+          error: !validatorFunc(inputValue),
+        },
+      };
+      return newData;
+    }
+  });
+  setState(newState);
+}
+
 function handleSelectInputChange<T>(
   e: React.ChangeEvent<HTMLSelectElement>,
   state: StatefulData<T>,
@@ -63,16 +94,48 @@ function handleSelectInputChange<T>(
 ): void {
   const selectValue = e.target.value as (typeof values)[number];
   const stateField = e.target.name;
-  console.log({ selectValue });
-  console.log({ stateField });
   if (stateField in state) {
     setState({
       ...state,
       [stateField]: {
         data: selectValue,
+        error: false,
       },
     });
   }
 }
 
-export { handleTextInputChange, handleTextInputBlur, handleSelectInputChange };
+function handleSelectInputChangeWithArrayData<T>(
+  e: React.ChangeEvent<HTMLSelectElement>,
+  idx: number,
+  state: Array<StatefulData<T>>,
+  setState: React.Dispatch<React.SetStateAction<Array<StatefulData<T>>>>,
+  values: readonly string[]
+): void {
+  const selectValue = e.target.value as (typeof values)[number];
+  const stateField = e.target.name;
+  const newState: Array<StatefulData<T>> = state.map((data, index) => {
+    if (index !== idx) {
+      return data;
+    } else {
+      const newData: StatefulData<T> = {
+        ...data,
+        [stateField]: {
+          data: selectValue,
+          error: false,
+        },
+      };
+      return newData;
+    }
+  });
+  setState(newState);
+}
+
+export {
+  handleTextInputChange,
+  handleTextInputBlur,
+  handleSelectInputChange,
+  handleTextInputBlurWithArrayData,
+  handleTextInputChangeWithArrayData,
+  handleSelectInputChangeWithArrayData,
+};

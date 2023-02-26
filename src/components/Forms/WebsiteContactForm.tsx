@@ -120,7 +120,7 @@ function PhoneContactForm({
     });
   }
   function handleClickAddEmail(): void {
-    const newEmails = state.emails.map((el) => el);
+    const newEmails = [...state.emails];
     newEmails.push({ email: "", error: false });
     setState({
       ...state,
@@ -138,17 +138,18 @@ function PhoneContactForm({
     });
   }
   function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
-    const inputValue = e.target.value;
-    const emails: Array<StatefulEmailData> = state.emails.map((email) => {
+    const emails: Array<StatefulEmailData> = state.emails.map((email, idx) => {
+      if (index === idx) {
+        return {
+          email: e.target.value,
+          error: false,
+        };
+      }
       return {
         email: email.email,
         error: email.error,
       };
     });
-    emails[index] = {
-      email: inputValue,
-      error: false,
-    };
     setState({
       ...state,
       emails,
@@ -156,23 +157,24 @@ function PhoneContactForm({
   }
   function handleEmailBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
     const inputValue = e.target.value;
-    const emails: Array<StatefulEmailData> = state.emails.map((email) => {
+    const emails: Array<StatefulEmailData> = state.emails.map((email, idx) => {
+      if (index === 0) {
+        return {
+          email: inputValue,
+          error: !checkValidEmail(inputValue),
+        };
+      }
+      if (index === idx) {
+        return {
+          email: inputValue,
+          error: inputValue === "" ? false : !checkValidEmail(inputValue),
+        };
+      }
       return {
         email: email.email,
         error: email.error,
       };
     });
-    if (index === 0) {
-      emails[index] = {
-        email: inputValue,
-        error: !checkValidEmail(inputValue),
-      };
-    } else {
-      emails[index] = {
-        email: inputValue,
-        error: inputValue === "" ? false : !checkValidEmail(inputValue),
-      };
-    }
 
     setState({
       ...state,
@@ -181,14 +183,20 @@ function PhoneContactForm({
   }
   function handleWebsiteNameChange(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
     const inputValue = e.target.value;
-    const websites = [...state.websites];
-    websites[index] = {
-      URLData: websites[index].URLData,
-      websiteNameData: {
-        websiteName: inputValue,
-        error: false,
-      },
-    };
+    const websites = state.websites.map((website, idx) => {
+      if (index !== idx) {
+        return {
+          ...website,
+        };
+      }
+      return {
+        URLData: { ...website.URLData },
+        websiteNameData: {
+          websiteName: inputValue,
+          error: false,
+        },
+      };
+    });
     setState({
       ...state,
       websites,
@@ -196,54 +204,89 @@ function PhoneContactForm({
   }
   function handleWebsiteURLChange(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
     const inputValue = e.target.value;
-    const websites = [...state.websites];
-    websites[index] = {
-      URLData: {
-        URL: inputValue,
-        error: false,
-      },
-      websiteNameData: websites[index].websiteNameData,
-    };
+    const websites = state.websites.map((website, idx) => {
+      if (idx !== index) {
+        return { ...website };
+      }
+      return {
+        ...website,
+        URLData: {
+          URL: inputValue,
+          error: false,
+        },
+      };
+    });
     setState({
       ...state,
       websites,
     });
   }
   function handleWebsiteNameBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
-    const websites: Array<StatefulWebsiteData> = state.websites.map((website) => {
+    const inputValue = e.target.value;
+    const websites: Array<StatefulWebsiteData> = state.websites.map((website, idx) => {
+      if (index !== idx) {
+        return { ...website };
+      }
+      const websiteName: string = website.websiteNameData.websiteName;
+      const websiteURL: string = website.URLData.URL;
+      if (websiteName === "" && websiteURL === "") {
+        return {
+          websiteNameData: {
+            websiteName: inputValue,
+            error: false,
+          },
+          URLData: {
+            URL: websiteURL,
+            error: false,
+          },
+        };
+      }
       return {
-        URLData: { ...website.URLData },
-        websiteNameData: { ...website.websiteNameData },
+        websiteNameData: {
+          websiteName: inputValue,
+          error: !checkInputForNotEmpty(inputValue),
+        },
+        URLData: {
+          URL: websiteURL,
+          error: !checkValidWebsiteAddress(websiteURL),
+        },
       };
     });
-    if (websites[index].websiteNameData.websiteName === "" && websites[index].URLData.URL === "") {
-      websites[index].websiteNameData.error = false;
-    } else if (
-      websites[index].websiteNameData.websiteName === "" &&
-      websites[index].URLData.URL !== ""
-    ) {
-      websites[index].websiteNameData.error = true;
-    }
     setState({
       ...state,
       websites,
     });
   }
   function handleWebsiteURLBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
-    const websites: Array<StatefulWebsiteData> = state.websites.map((website) => {
+    const websites: Array<StatefulWebsiteData> = state.websites.map((website, idx) => {
+      if (index !== idx) {
+        return { ...website };
+      }
+      const websiteName: string = website.websiteNameData.websiteName;
+      const websiteURL: string = website.URLData.URL;
+      if (websiteName === "" && websiteURL === "") {
+        return {
+          websiteNameData: {
+            websiteName: websiteName,
+            error: false,
+          },
+          URLData: {
+            URL: websiteURL,
+            error: false,
+          },
+        };
+      }
       return {
-        URLData: { ...website.URLData },
-        websiteNameData: { ...website.websiteNameData },
+        websiteNameData: {
+          websiteName: websiteName,
+          error: !checkInputForNotEmpty(websiteName),
+        },
+        URLData: {
+          URL: websiteURL,
+          error: !checkValidWebsiteAddress(websiteURL),
+        },
       };
     });
-    if (websites[index].websiteNameData.websiteName === "" && websites[index].URLData.URL === "") {
-      websites[index].URLData.error = false;
-    } else if (
-      websites[index].websiteNameData.websiteName !== "" &&
-      websites[index].URLData.URL === ""
-    ) {
-      websites[index].URLData.error = true;
-    }
     setState({
       ...state,
       websites,

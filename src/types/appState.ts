@@ -6,6 +6,7 @@ import {
   Address,
   PhoneContactData,
   WebContactData,
+  NonCollegiateEducationData,
 } from "./resumeData";
 
 type TransitionState = "none" | "forward" | "backwards";
@@ -17,42 +18,47 @@ type AppState = {
   resume: {
     name: {
       data: NameData;
-      error?: boolean;
+      error: boolean;
       prevRendered: boolean;
     };
     contactAddress: {
       data: Address;
-      error?: boolean;
+      error: boolean;
       prevRendered: boolean;
     };
     contactWeb: {
       data: WebContactData;
-      error?: boolean;
+      error: boolean;
       prevRendered: boolean;
     };
     contactPhone: {
       data: PhoneContactData;
-      error?: boolean;
+      error: boolean;
       prevRendered: boolean;
     };
     workExperience: {
       data: Array<JobData>;
-      error?: boolean;
+      error: boolean;
       prevRendered: boolean;
     };
     education: {
       data: Array<EducationData>;
-      error?: boolean;
+      error: boolean;
+      prevRendered: boolean;
+    };
+    nonCollegiateEducation: {
+      data: Array<NonCollegiateEducationData>;
+      error: boolean;
       prevRendered: boolean;
     };
     references: {
       data: Array<ReferenceData>;
-      error?: boolean;
+      error: boolean;
       prevRendered: boolean;
     };
     skills: {
       data: Array<string>;
-      error?: boolean;
+      error: boolean;
       prevRendered: boolean;
     };
   };

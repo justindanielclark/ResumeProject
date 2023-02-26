@@ -34,7 +34,12 @@ type Address = {
   state: string;
   zip: string;
 };
-
+type NonCollegiateEducationData = {
+  program: string;
+  end: Date;
+  field: string;
+  description: string;
+};
 type EducationData = {
   school: string;
   end: Date;
@@ -48,7 +53,6 @@ type ReferenceData = {
   title: string;
   job?: JobData;
 };
-
 type JobData = {
   companyName: string;
   jobTitle: string;
@@ -57,7 +61,6 @@ type JobData = {
   address: Address;
   description: string;
 };
-
 type ComplexType =
   | WebInfoType
   | NameData
@@ -74,6 +77,7 @@ type StatefulDataHelper<T> = {
     error?: boolean;
   };
 };
+
 type StatefulData<Type> = {
   [Property in keyof Type]: {
     data: Type[Property] extends Array<infer ArrayDataType>
@@ -118,5 +122,6 @@ export type {
   StatefulData,
   Payload,
   WebInfoType,
+  NonCollegiateEducationData,
 };
 export default ResumeData;

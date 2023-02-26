@@ -1,4 +1,12 @@
-import { NameData, Address, PhoneContactData, WebContactData, JobData } from "./resumeData";
+import {
+  NameData,
+  Address,
+  PhoneContactData,
+  WebContactData,
+  JobData,
+  EducationData,
+  NonCollegiateEducationData,
+} from "./resumeData";
 
 interface WithPayload<Type> {
   payload: {
@@ -26,12 +34,20 @@ interface WebContactAction extends WithPayload<WebContactData> {
 interface WorkExperienceAction extends WithPayload<Array<JobData>> {
   type: "submitWorkExperienceInfo";
 }
+interface EducationAction extends WithPayload<Array<EducationData>> {
+  type: "submitEducationInfo";
+}
+interface NonCollegiateAction extends WithPayload<Array<NonCollegiateEducationData>> {
+  type: "submitNonCollegiateEducationInfo";
+}
 
 type ReducerAction =
   | NameAction
   | AddressContactAction
   | PhoneContactAction
   | WebContactAction
-  | WorkExperienceAction;
+  | WorkExperienceAction
+  | EducationAction
+  | NonCollegiateAction;
 
 export default ReducerAction;

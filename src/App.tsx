@@ -6,6 +6,8 @@ import {
   PhoneContactData,
   WebContactData,
   JobData,
+  EducationData,
+  NonCollegiateEducationData,
 } from "./types/resumeData";
 import reducer from "./utils/reducer";
 import { useEffect, useReducer } from "react";
@@ -15,69 +17,84 @@ import AddressContactForm from "./components/Forms/AddressContactForm";
 import PhoneContactForm from "./components/Forms/PhoneContactForm";
 import WebsiteContactForm from "./components/Forms/WebsiteContactForm";
 import WorkExperienceForm from "./components/Forms/WorkExperienceForm";
+import EducationForm from "./components/Forms/EducationForm";
+import NonCollegiateEducationForm from "./components/Forms/NonCollegiateEducationForm";
 
-const startState: AppState = {
-  currentSlide: 3,
-  transitionSlide: 1,
-  transitioning: "none",
-  resume: {
-    name: {
-      data: {
-        prefix: "-None Selected-",
-        firstName: "",
-        lastName: "",
-        suffix: "-None Selected-",
-        pronouns: pronouns[0],
+function createState(): AppState {
+  return {
+    currentSlide: 5,
+    transitionSlide: 1,
+    transitioning: "none",
+    resume: {
+      name: {
+        data: {
+          prefix: "-None Selected-",
+          firstName: "",
+          lastName: "",
+          suffix: "-None Selected-",
+          pronouns: pronouns[0],
+        },
+        prevRendered: false,
+        error: false,
       },
-      prevRendered: false,
-    },
-    contactAddress: {
-      data: {
-        address1: "",
-        city: "",
-        state: "CA",
-        zip: "",
+      contactAddress: {
+        data: {
+          address1: "",
+          city: "",
+          state: "CA",
+          zip: "",
+        },
+        prevRendered: false,
+        error: false,
       },
-      prevRendered: false,
-    },
-    contactPhone: {
-      data: {
-        home: "",
-        mobile: "",
-        other: "",
+      contactPhone: {
+        data: {
+          home: "",
+          mobile: "",
+          other: "",
+        },
+        prevRendered: false,
+        error: false,
       },
-      prevRendered: false,
-    },
-    contactWeb: {
-      data: {
-        email: [],
-        websites: [
-          /*{ URL: "www.facebook.com", websiteName: "Facebook" }*/
-        ],
+      contactWeb: {
+        data: {
+          email: [],
+          websites: [],
+        },
+        prevRendered: false,
+        error: false,
       },
-      prevRendered: false,
+      education: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
+      nonCollegiateEducation: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
+      references: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
+      workExperience: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
+      skills: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
     },
-    education: {
-      data: [],
-      prevRendered: false,
-    },
-    references: {
-      data: [],
-      prevRendered: false,
-    },
-    workExperience: {
-      data: [],
-      prevRendered: false,
-    },
-    skills: {
-      data: [],
-      prevRendered: false,
-    },
-  },
-};
+  };
+}
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, startState);
+  const [state, dispatch] = useReducer(reducer, createState());
   useEffect(() => console.log({ state }), [state]);
   const handleSubmitName = (payload: Payload<NameData>) => {
     dispatch({ type: "submitName", payload });
@@ -93,6 +110,14 @@ function App() {
   };
   const handleSubmitWorkExperienceInfo = (payload: Payload<Array<JobData>>) => {
     dispatch({ type: "submitWorkExperienceInfo", payload });
+  };
+  const handleSubmitEducationInfo = (payload: Payload<Array<EducationData>>) => {
+    dispatch({ type: "submitEducationInfo", payload });
+  };
+  const handleSubmitNonCollegiateEducationInfo = (
+    payload: Payload<Array<NonCollegiateEducationData>>
+  ) => {
+    dispatch({ type: "submitNonCollegiateEducationInfo", payload });
   };
   const renderForms = (
     transitioning: TransitionState,
@@ -167,13 +192,35 @@ function App() {
               nextHandler={dummyHandler}
               prevHandler={dummyHandler}
               submitHandler={handleSubmitWorkExperienceInfo}
-              prevRendered={state.resume.contactWeb.prevRendered}
+              prevRendered={state.resume.workExperience.prevRendered}
               propState={state.resume.workExperience.data}
             />
           );
         }
+        case 5: {
+          return (
+            <EducationForm
+              nextHandler={dummyHandler}
+              prevHandler={dummyHandler}
+              submitHandler={handleSubmitEducationInfo}
+              prevRendered={state.resume.education.prevRendered}
+              propState={state.resume.education.data}
+            />
+          );
+        }
+        case 6: {
+          return (
+            <NonCollegiateEducationForm
+              nextHandler={dummyHandler}
+              prevHandler={dummyHandler}
+              submitHandler={handleSubmitNonCollegiateEducationInfo}
+              prevRendered={state.resume.nonCollegiateEducation.prevRendered}
+              propState={state.resume.nonCollegiateEducation.data}
+            />
+          );
+        }
         default: {
-          return <p>There has been an error, check renderForms() in App.tsx</p>;
+          return <p>{`There has been an error, check renderForms() in App.tsx`}</p>;
         }
       }
     }

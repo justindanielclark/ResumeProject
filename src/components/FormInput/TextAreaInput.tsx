@@ -8,8 +8,8 @@ type Props = {
   labelID: string;
   //Optional
   rows?: number;
-  onBlur?: (e: React.FocusEvent<HTMLElement>) => void;
-  onChange?: (e: React.ChangeEvent<HTMLElement>) => void;
+  onBlur?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
   error?: boolean;
   errorMessage?: string;
@@ -32,28 +32,28 @@ function TextAreaInput({
   const generateTopLabel = (error: boolean, errorMessage: string) => {
     if (error) {
       return (
-        <div className="flex justify-between pr-3">
-          <label className="font-bold text-sm relative px-2 underline" htmlFor={labelName}>
+        <div className="flex justify-between pr-5">
+          <label className="relative px-2 text-sm font-bold underline" htmlFor={labelName}>
             {label}
-            {required ? <span className="text-xs relative inline-block -top-1">*</span> : undefined}
+            {required ? <span className="relative -top-1 inline-block text-xs">*</span> : undefined}
           </label>
-          <p className="text-red-500 font-bold text-xs pb-1">{errorMessage}</p>
+          <p className="pb-1 text-xs font-bold text-red-500">{errorMessage}</p>
         </div>
       );
     }
     return (
-      <label className="font-bold text-sm relative px-2 underline" htmlFor={labelName}>
+      <label className="relative px-2 text-sm font-bold underline" htmlFor={labelName}>
         {label}
-        {required ? <span className="text-xs relative inline-block -top-1">*</span> : undefined}
+        {required ? <span className="relative -top-1 inline-block text-xs">*</span> : undefined}
       </label>
     );
   };
 
   return (
-    <div className="flex flex-col justify-start mb-1 first:mt-1 last:mb-2">
+    <div className="mb-1 flex flex-col justify-start first:mt-1 last:mb-2">
       {error && errorMessage ? generateTopLabel(error, errorMessage) : generateTopLabel(false, "")}
       <textarea
-        className="placeholder-slate-500 px-2 outline-slate-500  rounded-md mx-3 resize-none"
+        className="mx-3 resize-none rounded-md  px-2 placeholder-slate-500 outline-slate-500"
         name={labelName}
         id={labelID}
         value={value}
@@ -62,7 +62,7 @@ function TextAreaInput({
         required={required}
         placeholder={placeholder ? placeholder : ""}
         spellCheck={false}
-        rows={rows ? rows : 4}
+        rows={rows ? rows : 3}
       />
     </div>
   );

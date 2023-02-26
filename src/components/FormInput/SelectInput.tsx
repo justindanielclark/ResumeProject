@@ -28,19 +28,19 @@ function SelectInput({
   const generateTopLabel = (error: boolean, errorMessage: string) => {
     if (error) {
       return (
-        <div className="flex justify-between pr-3">
-          <label className="font-bold text-sm relative px-2 underline" htmlFor={labelName}>
+        <div className="flex justify-between pr-5">
+          <label className="relative px-2 text-sm font-bold underline" htmlFor={labelName}>
             {label}
-            {required ? <span className="text-xs relative inline-block -top-1">*</span> : undefined}
+            {required ? <span className="relative -top-1 inline-block text-xs">*</span> : undefined}
           </label>
           <p>{errorMessage}</p>
         </div>
       );
     }
     return (
-      <label className="font-bold text-sm relative px-2 underline" htmlFor={labelName}>
+      <label className="relative px-2 text-sm font-bold underline" htmlFor={labelName}>
         {label}
-        {required ? <span className="text-xs relative inline-block -top-1">*</span> : undefined}
+        {required ? <span className="relative -top-1 inline-block text-xs">*</span> : undefined}
       </label>
     );
   };
@@ -59,10 +59,10 @@ function SelectInput({
   };
 
   return (
-    <div className="flex flex-col justify-start mb-1 first:mt-1 last:mb-2">
+    <div className="mb-1 flex flex-col justify-start first:mt-1 last:mb-2">
       {error && errorMessage ? generateTopLabel(error, errorMessage) : generateTopLabel(false, "")}
       <select
-        className="mx-3 px-1 outline-slate-500  rounded-md h-6"
+        className="mx-3 rounded-md  px-1 outline-slate-500"
         name={labelName}
         id={labelID}
         value={value ? value : undefined}
