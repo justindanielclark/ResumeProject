@@ -12,7 +12,6 @@ type Props = {
 };
 
 function FormContainer({ title, children, nextHandler, prevHandler, handleAdd }: Props) {
-  console.log({ handleAdd });
   return (
     <form className="absolute top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded border-2 border-slate-900 bg-slate-300 text-slate-800">
       {handleAdd !== undefined ? (

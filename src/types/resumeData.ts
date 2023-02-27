@@ -7,6 +7,10 @@ type PrefixType = (typeof prefixes)[number];
 type SuffixType = (typeof suffixes)[number];
 type DegreeType = (typeof degreeTypes)[number];
 type Degree = (typeof degrees)[number];
+type DateDataPointType = {
+  data: Date;
+  current: boolean;
+};
 type WebInfoType = {
   websiteName: string;
   URL: string;
@@ -36,13 +40,13 @@ type Address = {
 };
 type NonCollegiateEducationData = {
   program: string;
-  end: Date;
+  end: DateDataPointType;
   field: string;
   description: string;
 };
 type EducationData = {
   school: string;
-  end: Date;
+  end: DateDataPointType;
   degree: Degree;
   degreeType: DegreeType;
   field: string;
@@ -56,8 +60,8 @@ type ReferenceData = {
 type JobData = {
   companyName: string;
   jobTitle: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: DateDataPointType;
+  endDate: DateDataPointType;
   address: Address;
   description: string;
 };

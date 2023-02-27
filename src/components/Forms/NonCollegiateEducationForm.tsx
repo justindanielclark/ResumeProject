@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import FormContainer from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
+import DateInput from "../FormInput/DateInput";
 import { NonCollegiateEducationData, StatefulData } from "../../types/resumeData";
 import { checkInputForNotEmpty } from "../../utils/inputValidation";
 import SubHeader from "../FormInput/SubHeader";
@@ -28,7 +29,10 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
           error: !checkInputForNotEmpty(data.program),
         },
         end: {
-          data: data.end,
+          data: {
+            current: data.end.current,
+            data: data.end.data,
+          },
           error: false,
         },
         field: {
@@ -44,7 +48,10 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
   function handleClickAddEdu(): void {
     const newEdu: StatefulData<NonCollegiateEducationData> = {
       end: {
-        data: new Date(),
+        data: {
+          current: false,
+          data: new Date(),
+        },
         error: false,
       },
       field: {
@@ -66,27 +73,6 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
   function handleClickRemoveEdu(idx: number): void {
     const newState: State = state.filter((edu, index) => {
       return index !== idx;
-    });
-    setState(newState);
-  }
-  function handleDateInputChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-    itemIndex: number,
-    stateField: keyof StatefulData<NonCollegiateEducationData>
-  ) {
-    const newState = state.map((edu, idx) => {
-      if (idx !== itemIndex) {
-        return edu;
-      } else {
-        const newStateItem: StatefulData<NonCollegiateEducationData> = {
-          ...edu,
-          [stateField]: {
-            data: new Date(e.target.value),
-            error: false,
-          },
-        };
-        return newStateItem;
-      }
     });
     setState(newState);
   }
@@ -128,21 +114,23 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
               labelName="program"
               required={true}
               error={state[idx].program.error}
-              errorMessage="A Program/Cert Name is Required"
+              errorMessage="Required"
               onChange={(e) => handleTextInputChangeWithArrayData(e, idx, state, setState)}
               onBlur={(e) =>
                 handleTextInputBlurWithArrayData(e, idx, state, setState, checkInputForNotEmpty)
               }
               value={state[idx].program.data}
             />
-            <TextInput
-              label="Finished:"
-              labelID={`end_${idx}`}
+            <DateInput
+              label="Completed:"
               labelName="end"
+              onDateChange={(e) => console.log(e)}
+              onMonthChange={(e) => console.log(e)}
+              onYearChange={(e) => console.log(e)}
+              dateValue={state[idx].end.data.data}
+              currentValue={state[idx].end.data.current}
+              currentText={"Currently Enrolled:"}
               required={true}
-              onChange={(e) => handleDateInputChange(e, idx, "end")}
-              type="date"
-              value={state[idx].end.data.toISOString().slice(0, 10)}
             />
             <TextAreaInput
               label="Description:"
@@ -198,7 +186,7 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
       }
       nextHandler={handleSubmit}
       prevHandler={prevHandler}
-      handleAdd={handleClickAddEdu}
+      handleAdd={state.length < 3 ? handleClickAddEdu : undefined}
     >
       {state.length === 0 ? (
         <>

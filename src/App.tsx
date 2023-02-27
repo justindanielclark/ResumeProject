@@ -22,7 +22,7 @@ import NonCollegiateEducationForm from "./components/Forms/NonCollegiateEducatio
 
 function createState(): AppState {
   return {
-    currentSlide: 5,
+    currentSlide: 6,
     transitionSlide: 1,
     transitioning: "none",
     resume: {
