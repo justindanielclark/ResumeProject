@@ -131,6 +131,33 @@ function handleSelectInputChangeWithArrayData<T>(
   setState(newState);
 }
 
+function handleDateInputChangeWithArrayData<T>(
+  dateInfo: {
+    date: Date;
+    current: boolean;
+  },
+  idx: number,
+  state: Array<StatefulData<T>>,
+  stateField: string,
+  setState: React.Dispatch<React.SetStateAction<Array<StatefulData<T>>>>
+): void {
+  const newState: Array<StatefulData<T>> = state.map((data, index) => {
+    if (index !== idx) {
+      return data;
+    } else {
+      const newData: StatefulData<T> = {
+        ...data,
+        [stateField]: {
+          data: dateInfo,
+          error: false,
+        },
+      };
+      return newData;
+    }
+  });
+  setState(newState);
+}
+
 export {
   handleTextInputChange,
   handleTextInputBlur,
@@ -138,4 +165,5 @@ export {
   handleTextInputBlurWithArrayData,
   handleTextInputChangeWithArrayData,
   handleSelectInputChangeWithArrayData,
+  handleDateInputChangeWithArrayData,
 };

@@ -7,6 +7,7 @@ import { checkInputForNotEmpty } from "../../utils/inputValidation";
 import SubHeader from "../FormInput/SubHeader";
 import FormSubsection from "./FormSubSection";
 import {
+  handleDateInputChangeWithArrayData,
   handleTextInputBlurWithArrayData,
   handleTextInputChangeWithArrayData,
 } from "../../utils/handlers";
@@ -81,12 +82,12 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
     itemIndex: number,
     stateField: keyof StatefulData<NonCollegiateEducationData>
   ): void {
-    const newState = state.map((jobData, idx) => {
+    const newState = state.map((eduData, idx) => {
       if (idx !== itemIndex) {
-        return jobData;
+        return eduData;
       } else {
         const newStateItem: StatefulData<NonCollegiateEducationData> = {
-          ...jobData,
+          ...eduData,
           [stateField]: {
             data: e.target.value,
             error: false,
@@ -124,13 +125,33 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
             <DateInput
               label="Completed:"
               labelName="end"
-              onDateChange={(e) => console.log(e)}
-              onMonthChange={(e) => console.log(e)}
-              onYearChange={(e) => console.log(e)}
+              handleChange={function (date, current) {
+                const newState: Array<StatefulData<NonCollegiateEducationData>> = state.map(
+                  (dataPoint, index) => {
+                    if (idx !== index) {
+                      return dataPoint;
+                    } else {
+                      const newDataPoint: StatefulData<NonCollegiateEducationData> = {
+                        ...dataPoint,
+                        end: {
+                          data: {
+                            current,
+                            data: date,
+                          },
+                          error: false,
+                        },
+                      };
+                      return newDataPoint;
+                    }
+                  }
+                );
+                setState(newState);
+              }}
               dateValue={state[idx].end.data.data}
               currentValue={state[idx].end.data.current}
               currentText={"Currently Enrolled:"}
               required={true}
+              relatedIndex={idx}
             />
             <TextAreaInput
               label="Description:"
