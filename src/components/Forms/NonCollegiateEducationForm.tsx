@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import FormContainer from "../FormContainer/FormContainer";
+import React, { useEffect, useState } from "react";
+import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
 import DateInput from "../FormInput/DateInput";
 import { NonCollegiateEducationData, StatefulData } from "../../types/resumeData";
@@ -7,11 +7,11 @@ import { checkInputForNotEmpty } from "../../utils/inputValidation";
 import SubHeader from "../FormInput/SubHeader";
 import FormSubsection from "./FormSubSection";
 import {
-  handleDateInputChangeWithArrayData,
   handleTextInputBlurWithArrayData,
   handleTextInputChangeWithArrayData,
 } from "../../utils/handlers";
 import TextAreaInput from "../FormInput/TextAreaInput";
+import examples from "../../data/nonCollegiateEduExamples";
 type State = Array<StatefulData<NonCollegiateEducationData>>;
 type Props = {
   propState: Array<NonCollegiateEducationData>;
@@ -19,9 +19,22 @@ type Props = {
   nextHandler: () => void;
   prevHandler?: () => void;
   submitHandler: (payload: { data: Array<NonCollegiateEducationData>; error: boolean }) => void;
+  animating: FormAnimatingTypes;
+  handleAnimationEnd?: () => void;
 };
-function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, propState }: Props) {
+function NonCollegiateEducationForm({
+  submitHandler,
+  nextHandler,
+  prevHandler,
+  propState,
+  animating,
+  handleAnimationEnd,
+}: Props) {
   const [state, setState] = useState<State>(createState(propState));
+  useEffect(() => {
+    console.log("NonCollegiateEducationForm:");
+    console.log({ state });
+  }, [state]);
   function createState(educations: Array<NonCollegiateEducationData>): State {
     const state: State = educations.map((data) => {
       const stateObj: StatefulData<NonCollegiateEducationData> = {
@@ -36,10 +49,6 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
           },
           error: false,
         },
-        field: {
-          data: data.field,
-          error: !checkInputForNotEmpty(data.description),
-        },
         description: { data: data.description, error: !checkInputForNotEmpty(data.description) },
       };
       return stateObj;
@@ -53,10 +62,6 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
           current: false,
           data: new Date(),
         },
-        error: false,
-      },
-      field: {
-        data: "",
         error: false,
       },
       program: {
@@ -77,29 +82,8 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
     });
     setState(newState);
   }
-  function handleTextAreaInputChange(
-    e: React.ChangeEvent<HTMLTextAreaElement>,
-    itemIndex: number,
-    stateField: keyof StatefulData<NonCollegiateEducationData>
-  ): void {
-    const newState = state.map((eduData, idx) => {
-      if (idx !== itemIndex) {
-        return eduData;
-      } else {
-        const newStateItem: StatefulData<NonCollegiateEducationData> = {
-          ...eduData,
-          [stateField]: {
-            data: e.target.value,
-            error: false,
-          },
-        };
-        return newStateItem;
-      }
-    });
-    setState(newState);
-  }
   function eduIsEmpty(data: StatefulData<NonCollegiateEducationData>): boolean {
-    return data.field.data === "" && data.program.data === "";
+    return data.program.data === "";
   }
   function renderEdus(state: State) {
     const edus: Array<JSX.Element> = [];
@@ -107,10 +91,13 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
     state.forEach((edu, idx) => {
       edus.push(
         <React.Fragment key={idx}>
-          <SubHeader title={`School ${idx + 1}:`} handleRemove={() => handleClickRemoveEdu(idx)} />
+          <SubHeader
+            title={`Program/Cert ${idx + 1}:`}
+            handleRemove={() => handleClickRemoveEdu(idx)}
+          />
           <FormSubsection>
             <TextInput
-              label="Program/Certificate:"
+              label="Name:"
               labelID={`program_${idx}`}
               labelName="program"
               required={true}
@@ -121,6 +108,7 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
                 handleTextInputBlurWithArrayData(e, idx, state, setState, checkInputForNotEmpty)
               }
               value={state[idx].program.data}
+              placeholder={examples[idx].program}
             />
             <DateInput
               label="Completed:"
@@ -151,14 +139,16 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
               currentValue={state[idx].end.data.current}
               currentText={"Currently Enrolled:"}
               required={true}
-              relatedIndex={idx}
+              error={state[idx].end.error}
+              errorMessage={""}
             />
             <TextAreaInput
               label="Description:"
               labelID={`description_${idx}`}
               labelName="description"
               required={false}
-              onChange={(e) => handleTextAreaInputChange(e, idx, "description")}
+              onChange={(e) => handleTextInputChangeWithArrayData(e, idx, state, setState)}
+              placeholder={examples[idx].description}
             />
           </FormSubsection>
         </React.Fragment>
@@ -186,7 +176,6 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
       const edu: NonCollegiateEducationData = {
         description: dataPoint.description.data,
         end: dataPoint.end.data,
-        field: dataPoint.field.data,
         program: dataPoint.program.data,
       };
       return edu;
@@ -201,21 +190,21 @@ function NonCollegiateEducationForm({ submitHandler, nextHandler, prevHandler, p
   return (
     <FormContainer
       title={
-        state.length <= 1
-          ? "Programs/Certifications:"
-          : `Programs/Certifications: (${state.length} Listed)`
+        state.length <= 1 ? "Programs/Certifications:" : `Programs/Certs: (${state.length} Listed)`
       }
       nextHandler={handleSubmit}
       prevHandler={prevHandler}
       handleAdd={state.length < 3 ? handleClickAddEdu : undefined}
+      animating={animating}
+      handleAnimationEnd={handleAnimationEnd}
     >
       {state.length === 0 ? (
-        <>
+        <div className="flex h-full flex-col items-center justify-center">
           <p className="text-md px-3 pt-2 text-center">No Programs/Certs Added:</p>
           <p className="px-3 pb-2 text-center text-sm">
             To Add A Program/Cert, Click the + In The Upper Right Corner
           </p>
-        </>
+        </div>
       ) : (
         renderEdus(state)
       )}

@@ -3,17 +3,40 @@ import plus from "../../assets/svgs/plus.svg";
 import AcceptButton from "../SimpleButton/AcceptButton";
 import CancelButton from "../SimpleButton/CancelButton";
 
+type FormAnimatingTypes = "forward" | "backwards" | "none";
+
 type Props = {
   title: string;
   children: React.ReactNode;
   nextHandler: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   prevHandler?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   handleAdd?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  animating: FormAnimatingTypes;
+  handleAnimationEnd?: () => void;
 };
 
-function FormContainer({ title, children, nextHandler, prevHandler, handleAdd }: Props) {
+function FormContainer({
+  title,
+  children,
+  nextHandler,
+  prevHandler,
+  handleAdd,
+  animating,
+  handleAnimationEnd,
+}: Props) {
+  let animatingClass = "";
+  switch (animating) {
+    case "forward": {
+      animatingClass = "animate-left";
+      break;
+    }
+    case "backwards": {
+      animatingClass = "animate-right";
+      break;
+    }
+  }
   return (
-    <form className="absolute top-1/2 left-1/2 w-96 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded border-2 border-slate-900 bg-slate-300 text-slate-800">
+    <form className={`relative min-w-full ${animatingClass}`} onAnimationEnd={handleAnimationEnd}>
       {handleAdd !== undefined ? (
         <img
           src={plus}
@@ -25,7 +48,7 @@ function FormContainer({ title, children, nextHandler, prevHandler, handleAdd }:
       <h1 className="sticky border-b-2 border-slate-700 bg-slate-800 py-2 px-1 text-2xl font-bold text-slate-100">
         {title}
       </h1>
-      <div className="max-h-60 overflow-y-auto">{children}</div>
+      <div className="h-60 items-center justify-center overflow-y-auto">{children}</div>
       <div className="flex flex-row justify-between bg-slate-800 p-2">
         {prevHandler ? (
           <CancelButton type="button" handleClick={prevHandler}>
@@ -41,3 +64,5 @@ function FormContainer({ title, children, nextHandler, prevHandler, handleAdd }:
 }
 
 export default FormContainer;
+export type { FormAnimatingTypes };
+export { FormContainer };

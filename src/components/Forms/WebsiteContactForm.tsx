@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { WebContactData, Payload } from "../../types/resumeData";
-import FormContainer from "../FormContainer/FormContainer";
+import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import {
   checkInputForNotEmpty,
   checkValidEmail,
@@ -31,6 +31,8 @@ type Props = {
   nextHandler: () => void;
   prevHandler: () => void;
   submitHandler: (payload: Payload<WebContactData>) => void;
+  animating: FormAnimatingTypes;
+  handleAnimationEnd?: () => void;
 };
 function PhoneContactForm({
   submitHandler,
@@ -38,8 +40,14 @@ function PhoneContactForm({
   prevHandler,
   propState,
   prevRendered,
+  animating,
+  handleAnimationEnd,
 }: Props) {
   const [state, setState] = useState<State>(createState(propState));
+  useEffect(() => {
+    console.log("WebsiteContactForm:");
+    console.log({ state });
+  }, [state]);
   function createState(propState: WebContactData): State {
     const emails: Array<StatefulEmailData> = [];
     const websites: Array<StatefulWebsiteData> = [];
@@ -157,29 +165,27 @@ function PhoneContactForm({
   }
   function handleEmailBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
     const inputValue = e.target.value;
-    const emails: Array<StatefulEmailData> = state.emails.map((email, idx) => {
-      if (index === 0) {
+    const hasError =
+      index === 0
+        ? !checkValidEmail(inputValue)
+        : inputValue === ""
+        ? false
+        : !checkValidEmail(inputValue);
+    if (hasError !== state.emails[index].error) {
+      const emails = state.emails.map((email, idx) => {
+        if (idx !== index) {
+          return email;
+        }
         return {
           email: inputValue,
-          error: !checkValidEmail(inputValue),
+          error: hasError,
         };
-      }
-      if (index === idx) {
-        return {
-          email: inputValue,
-          error: inputValue === "" ? false : !checkValidEmail(inputValue),
-        };
-      }
-      return {
-        email: email.email,
-        error: email.error,
-      };
-    });
-
-    setState({
-      ...state,
-      emails,
-    });
+      });
+      setState({
+        ...state,
+        emails,
+      });
+    }
   }
   function handleWebsiteNameChange(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
     const inputValue = e.target.value;
@@ -223,81 +229,96 @@ function PhoneContactForm({
   }
   function handleWebsiteNameBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
     const inputValue = e.target.value;
-    const websites: Array<StatefulWebsiteData> = state.websites.map((website, idx) => {
-      if (index !== idx) {
-        return { ...website };
-      }
-      const websiteName: string = website.websiteNameData.websiteName;
-      const websiteURL: string = website.URLData.URL;
-      if (websiteName === "" && websiteURL === "") {
+    const hasError =
+      inputValue === "" ? (state.websites[index].URLData.URL === "" ? false : true) : false;
+    const websiteNameData = state.websites[index].websiteNameData;
+    if (websiteNameData.error !== hasError) {
+      const websites: Array<StatefulWebsiteData> = state.websites.map((website, idx) => {
+        if (index !== idx) {
+          return { ...website };
+        }
+        const websiteName: string = website.websiteNameData.websiteName;
+        const websiteURL: string = website.URLData.URL;
+        if (websiteName === "" && websiteURL === "") {
+          return {
+            websiteNameData: {
+              websiteName: inputValue,
+              error: false,
+            },
+            URLData: {
+              URL: websiteURL,
+              error: false,
+            },
+          };
+        }
         return {
           websiteNameData: {
             websiteName: inputValue,
-            error: false,
+            error: !checkInputForNotEmpty(inputValue),
           },
           URLData: {
             URL: websiteURL,
-            error: false,
+            error: !checkValidWebsiteAddress(websiteURL),
           },
         };
-      }
-      return {
-        websiteNameData: {
-          websiteName: inputValue,
-          error: !checkInputForNotEmpty(inputValue),
-        },
-        URLData: {
-          URL: websiteURL,
-          error: !checkValidWebsiteAddress(websiteURL),
-        },
-      };
-    });
-    setState({
-      ...state,
-      websites,
-    });
+      });
+      setState({
+        ...state,
+        websites,
+      });
+    }
   }
   function handleWebsiteURLBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
-    const websites: Array<StatefulWebsiteData> = state.websites.map((website, idx) => {
-      if (index !== idx) {
-        return { ...website };
-      }
-      const websiteName: string = website.websiteNameData.websiteName;
-      const websiteURL: string = website.URLData.URL;
-      if (websiteName === "" && websiteURL === "") {
+    const inputValue = e.target.value;
+    const hasError =
+      inputValue === ""
+        ? state.websites[index].websiteNameData.websiteName === ""
+          ? false
+          : true
+        : false;
+    const websiteURL = state.websites[index].URLData;
+    if (websiteURL.error !== hasError) {
+      const websites: Array<StatefulWebsiteData> = state.websites.map((website, idx) => {
+        if (index !== idx) {
+          return website;
+        }
+        const websiteName: string = website.websiteNameData.websiteName;
+        const websiteURL: string = website.URLData.URL;
+        if (websiteName === "" && websiteURL === "") {
+          return {
+            websiteNameData: {
+              websiteName: websiteName,
+              error: false,
+            },
+            URLData: {
+              URL: websiteURL,
+              error: false,
+            },
+          };
+        }
         return {
           websiteNameData: {
             websiteName: websiteName,
-            error: false,
+            error: !checkInputForNotEmpty(websiteName),
           },
           URLData: {
-            URL: websiteURL,
-            error: false,
+            URL: inputValue,
+            error: !checkValidWebsiteAddress(inputValue),
           },
         };
-      }
-      return {
-        websiteNameData: {
-          websiteName: websiteName,
-          error: !checkInputForNotEmpty(websiteName),
-        },
-        URLData: {
-          URL: websiteURL,
-          error: !checkValidWebsiteAddress(websiteURL),
-        },
-      };
-    });
-    setState({
-      ...state,
-      websites,
-    });
+      });
+      setState({
+        ...state,
+        websites,
+      });
+    }
   }
-  function renderEmails(emails: Array<StatefulEmailData>): JSX.Element {
+  function renderEmails(emails: Array<StatefulEmailData>): Array<JSX.Element> {
     const fields: Array<JSX.Element> = [];
     emails.forEach((email, idx) => {
       if (idx === 0) {
         fields.push(
-          <FormSubSection>
+          <FormSubSection key={idx}>
             <TextInput
               key={idx}
               label={`${numberings[idx]}:`}
@@ -316,7 +337,7 @@ function PhoneContactForm({
         );
       } else {
         fields.push(
-          <FormSubSection onDeleteClick={(e) => handleClickDeleteEmail(e, idx)}>
+          <FormSubSection onDeleteClick={(e) => handleClickDeleteEmail(e, idx)} key={idx}>
             <TextInput
               key={idx}
               label={`${numberings[idx]}:`}
@@ -335,9 +356,9 @@ function PhoneContactForm({
         );
       }
     });
-    return <>{fields}</>;
+    return fields;
   }
-  function renderWebsites(websites: Array<StatefulWebsiteData>): JSX.Element {
+  function renderWebsites(websites: Array<StatefulWebsiteData>): Array<JSX.Element> {
     const fields: Array<JSX.Element> = [];
     websites.forEach((website, idx) => {
       if (idx === 0) {
@@ -400,7 +421,7 @@ function PhoneContactForm({
         );
       }
     });
-    return <>{fields}</>;
+    return fields;
   }
   function renderEmailHeader(emails: Array<StatefulEmailData>): JSX.Element {
     const title = "Email:";
@@ -417,7 +438,12 @@ function PhoneContactForm({
     return <SubHeader title={title} />;
   }
   function handleSubmit() {
-    const emailErrors = state.emails.reduce((acc, cur, idx) => {
+    const emails = state.emails.filter((dataPoint, idx) => {
+      if (idx === 0) return true;
+      if (dataPoint.email !== "") return true;
+      return false;
+    });
+    const emailErrors = emails.reduce((acc, cur, idx) => {
       if (acc) {
         return true;
       } else {
@@ -427,7 +453,10 @@ function PhoneContactForm({
         return cur.error;
       }
     }, false);
-    const websiteErrors = state.websites.reduce((acc, cur) => {
+    const websites = state.websites.filter((dataPoint) => {
+      return !(dataPoint.URLData.URL === "" && dataPoint.websiteNameData.websiteName === "");
+    });
+    const websiteErrors = websites.reduce((acc, cur) => {
       if (acc) {
         return true;
       } else {
@@ -436,8 +465,8 @@ function PhoneContactForm({
     }, false);
     const payloadData: Payload<WebContactData> = {
       data: {
-        email: state.emails.map((email) => email.email),
-        websites: state.websites.map((website) => {
+        email: emails.map((email) => email.email),
+        websites: websites.map((website) => {
           return {
             URL: website.URLData.URL,
             websiteName: website.websiteNameData.websiteName,
@@ -457,13 +486,13 @@ function PhoneContactForm({
       title="Web and Email Contact:"
       nextHandler={handleSubmit}
       prevHandler={prevHandler}
+      animating={animating}
+      handleAnimationEnd={handleAnimationEnd}
     >
-      <>
-        {renderEmailHeader(state.emails)}
-        <div>{renderEmails(state.emails)}</div>
-        {renderWebsitesHeader(state.websites)}
-        <div>{renderWebsites(state.websites)}</div>
-      </>
+      {renderEmailHeader(state.emails)}
+      <div>{renderEmails(state.emails)}</div>
+      {renderWebsitesHeader(state.websites)}
+      <div>{renderWebsites(state.websites)}</div>
     </FormContainer>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import FormContainer from "../FormContainer/FormContainer";
+import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
 import SelectInput from "../FormInput/SelectInput";
 import { EducationData, StatefulData } from "../../types/resumeData";
@@ -13,6 +13,7 @@ import {
   handleTextInputChangeWithArrayData,
   handleSelectInputChangeWithArrayData,
 } from "../../utils/handlers";
+import DateInput from "../../components/FormInput/DateInput";
 type State = Array<StatefulData<EducationData>>;
 type Props = {
   propState: Array<EducationData>;
@@ -20,9 +21,22 @@ type Props = {
   nextHandler: () => void;
   prevHandler?: () => void;
   submitHandler: (payload: { data: Array<EducationData>; error: boolean }) => void;
+  animating: FormAnimatingTypes;
+  handleAnimationEnd?: () => void;
 };
-function EducationForm({ submitHandler, nextHandler, prevHandler, propState }: Props) {
+function EducationForm({
+  submitHandler,
+  nextHandler,
+  prevHandler,
+  propState,
+  animating,
+  handleAnimationEnd,
+}: Props) {
   const [state, setState] = useState<State>(createState(propState));
+  useEffect(() => {
+    console.log("FormalEducationForm");
+    console.log({ state });
+  }, [state]);
   function createState(educations: Array<EducationData>): State {
     const state: State = educations.map((data) => {
       const stateObj: StatefulData<EducationData> = {
@@ -35,7 +49,10 @@ function EducationForm({ submitHandler, nextHandler, prevHandler, propState }: P
           error: false,
         },
         end: {
-          data: data.end,
+          data: {
+            data: data.end.data,
+            current: data.end.current,
+          },
           error: false,
         },
         field: {
@@ -62,7 +79,10 @@ function EducationForm({ submitHandler, nextHandler, prevHandler, propState }: P
         error: false,
       },
       end: {
-        data: new Date(),
+        data: {
+          data: new Date(),
+          current: false,
+        },
         error: false,
       },
       field: {
@@ -80,27 +100,6 @@ function EducationForm({ submitHandler, nextHandler, prevHandler, propState }: P
   function handleClickRemoveEdu(idx: number): void {
     const newState: State = state.filter((edu, index) => {
       return index !== idx;
-    });
-    setState(newState);
-  }
-  function handleDateInputChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-    itemIndex: number,
-    stateField: keyof StatefulData<EducationData>
-  ) {
-    const newState = state.map((edu, idx) => {
-      if (idx !== itemIndex) {
-        return edu;
-      } else {
-        const newStateItem: StatefulData<EducationData> = {
-          ...edu,
-          [stateField]: {
-            data: new Date(e.target.value),
-            error: false,
-          },
-        };
-        return newStateItem;
-      }
     });
     setState(newState);
   }
@@ -165,14 +164,36 @@ function EducationForm({ submitHandler, nextHandler, prevHandler, propState }: P
               placeholder={schoolExamples[idx].field}
               value={state[idx].field.data}
             />
-            <TextInput
-              label="Graduated:"
-              labelID={`end_${idx}`}
-              labelName="end"
+            <DateInput
               required={true}
-              onChange={(e) => handleDateInputChange(e, idx, "end")}
-              type="date"
-              value={state[idx].end.data.toISOString().slice(0, 10)}
+              dateValue={state[idx].end.data.data}
+              error={state[idx].end.error}
+              errorMessage={""}
+              label={"Graduated:"}
+              labelName={`end_${idx}`}
+              currentText={"Currently Attending?:"}
+              currentValue={state[idx].end.data.current}
+              handleChange={function (date, current) {
+                const newState: Array<StatefulData<EducationData>> = state.map(
+                  (dataPoint, index) => {
+                    if (index !== idx) {
+                      return dataPoint;
+                    }
+                    const newDataPoint: StatefulData<EducationData> = {
+                      ...dataPoint,
+                      end: {
+                        data: {
+                          data: date,
+                          current: current,
+                        },
+                        error: false,
+                      },
+                    };
+                    return newDataPoint;
+                  }
+                );
+                setState(newState);
+              }}
             />
           </FormSubsection>
         </React.Fragment>
@@ -223,14 +244,16 @@ function EducationForm({ submitHandler, nextHandler, prevHandler, propState }: P
       nextHandler={handleSubmit}
       prevHandler={prevHandler}
       handleAdd={state.length < schoolExamples.length ? handleClickAddEdu : undefined}
+      animating={animating}
+      handleAnimationEnd={handleAnimationEnd}
     >
       {state.length === 0 ? (
-        <>
+        <div className="flex h-full flex-col items-center justify-center">
           <p className="text-md px-3 pt-2 text-center">No Education Added:</p>
           <p className="px-3 pb-2 text-center text-sm">
             To Add A Edu, Click the + In The Upper Right Corner
           </p>
-        </>
+        </div>
       ) : (
         renderEdus(state)
       )}

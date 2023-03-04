@@ -31,6 +31,14 @@ const reducer = (state: State, action: ReducerAction): State => {
       stateField = "nonCollegiateEducation";
       break;
     }
+    case "submitReferencesInfo": {
+      stateField = "references";
+      break;
+    }
+    case "submitProjectsInfo": {
+      stateField = "projects";
+      break;
+    }
   }
   return {
     ...state,

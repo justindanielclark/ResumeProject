@@ -1,3 +1,5 @@
+const animationSpeed = ".25s";
+
 /** @type {import('tailwindcss').Config} */
 // eslint-disable-next-line no-undef
 module.exports = {
@@ -5,21 +7,24 @@ module.exports = {
   theme: {
     extend: {
       animation: {
-        fadeOut: "fadeOut .25s linear",
+        left: `left ${animationSpeed} linear`,
+        right: `right ${animationSpeed} linear`,
       },
       keyframes: {
-        fadeOut: {
+        left: {
           "0%": {
-            transform: "rotate(0deg)",
-            opactiy: "1",
-            right: "0%",
-            top: "0%",
+            transform: "translateX(0%)",
           },
           "100%": {
-            transform: "rotate(-90deg)",
-            opacity: "0",
-            right: "50%",
-            top: "50%",
+            transform: "translateX(-100%)",
+          },
+        },
+        right: {
+          "0%": {
+            transform: "translateX(0%)",
+          },
+          "100%": {
+            transform: "translateX(100%)",
           },
         },
       },

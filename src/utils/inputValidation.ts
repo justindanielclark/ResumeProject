@@ -19,6 +19,11 @@ function checkValidWebsiteAddress(str: string): boolean {
   return websiteRegex.test(str);
 }
 
+function checkValidWebsiteAddressOrIsEmpty(str: string): boolean {
+  if (str === "") return true;
+  return checkValidWebsiteAddress(str);
+}
+
 function checkValidEmail(str: string): boolean {
   const emailRegex = new RegExp(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g);
   return emailRegex.test(str);
@@ -30,4 +35,5 @@ export {
   checkValidPhoneNumber,
   checkValidEmail,
   checkValidWebsiteAddress,
+  checkValidWebsiteAddressOrIsEmpty,
 };

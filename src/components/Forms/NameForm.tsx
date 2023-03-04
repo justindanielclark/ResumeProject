@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import FormContainer from "../FormContainer/FormContainer";
+import React, { useEffect, useState } from "react";
+import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
 import SelectInput from "../FormInput/SelectInput";
 import {
@@ -23,37 +23,24 @@ type Props = {
   nextHandler: () => void;
   prevHandler?: () => void;
   submitHandler: (payload: { data: NameData; error: boolean }) => void;
+  animating: FormAnimatingTypes;
+  handleAnimationEnd?: () => void;
 };
-function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRendered }: Props) {
-  const [state, setState] = useState<State>({
-    prefix: {
-      data: propState.prefix,
-      error: false,
-    },
-    firstName: {
-      data: propState.firstName,
-      error: !prevRendered ? false : !checkInputForNotEmpty(propState.firstName),
-    },
-    lastName: {
-      data: propState.lastName,
-      error: !prevRendered ? false : !checkInputForNotEmpty(propState.lastName),
-    },
-    suffix: {
-      data: propState.suffix,
-      error: false,
-    },
-    pronouns: {
-      data: propState.pronouns,
-      error: false,
-    },
-  });
-  //!HANDLERS
-  //Input Changes
-  const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) =>
-    handleTextInputChange(e, state, setState, checkInputForNotEmpty);
-  const handleNameBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleTextInputBlur(e, state, setState, checkInputForNotEmpty);
-  };
+
+function NameForm({
+  submitHandler,
+  nextHandler,
+  prevHandler,
+  propState,
+  prevRendered,
+  animating,
+  handleAnimationEnd,
+}: Props) {
+  const [state, setState] = useState<State>(createState(propState, prevRendered));
+  useEffect(() => {
+    console.log("NameForm:");
+    console.log({ state });
+  }, [state]);
   const handlePronounChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setState({
       ...state,
@@ -81,7 +68,13 @@ function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRend
     nextHandler();
   };
   return (
-    <FormContainer title="Name" nextHandler={handleSubmit} prevHandler={prevHandler}>
+    <FormContainer
+      title="Name"
+      nextHandler={handleSubmit}
+      prevHandler={prevHandler}
+      animating={animating}
+      handleAnimationEnd={handleAnimationEnd}
+    >
       <div>
         <SelectInput
           label={"Prefix:"}
@@ -96,8 +89,8 @@ function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRend
           label="First:"
           labelID="firstName"
           labelName="firstName"
-          onChange={handleNameInput}
-          onBlur={handleNameBlur}
+          onChange={(e) => handleTextInputChange(e, state, setState, checkInputForNotEmpty)}
+          onBlur={(e) => handleTextInputBlur(e, state, setState, checkInputForNotEmpty)}
           required={true}
           errorMessage="Please Enter Your First Name"
           placeholder="John/Jane"
@@ -108,8 +101,8 @@ function NameForm({ submitHandler, nextHandler, prevHandler, propState, prevRend
           label="Last:"
           labelID="lastName"
           labelName="lastName"
-          onChange={handleNameInput}
-          onBlur={handleNameBlur}
+          onChange={(e) => handleTextInputChange(e, state, setState, checkInputForNotEmpty)}
+          onBlur={(e) => handleTextInputBlur(e, state, setState, checkInputForNotEmpty)}
           required={true}
           errorMessage="Please Enter Your Last Name"
           placeholder="Doe"
@@ -149,6 +142,30 @@ function convertPronounGroupIntoString(pronounGroup: PronounType): string {
       throw new Error("Incorrect Pronoun Group Supplied to Func Call in NameForm.tsx");
     }
   }
+}
+function createState(propState: NameData, prevRendered: boolean): State {
+  return {
+    prefix: {
+      data: propState.prefix,
+      error: false,
+    },
+    firstName: {
+      data: propState.firstName,
+      error: !prevRendered ? false : !checkInputForNotEmpty(propState.firstName),
+    },
+    lastName: {
+      data: propState.lastName,
+      error: !prevRendered ? false : !checkInputForNotEmpty(propState.lastName),
+    },
+    suffix: {
+      data: propState.suffix,
+      error: false,
+    },
+    pronouns: {
+      data: propState.pronouns,
+      error: false,
+    },
+  };
 }
 
 export default NameForm;

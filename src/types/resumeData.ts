@@ -9,7 +9,7 @@ type DegreeType = (typeof degreeTypes)[number];
 type Degree = (typeof degrees)[number];
 type DateDataPointType = {
   data: Date;
-  current: boolean;
+  current?: boolean;
 };
 type WebInfoType = {
   websiteName: string;
@@ -41,7 +41,6 @@ type Address = {
 type NonCollegiateEducationData = {
   program: string;
   end: DateDataPointType;
-  field: string;
   description: string;
 };
 type EducationData = {
@@ -54,8 +53,9 @@ type EducationData = {
 type ReferenceData = {
   fName: string;
   lName: string;
-  title: string;
-  job?: JobData;
+  relation: string;
+  phone: string;
+  email: string;
 };
 type JobData = {
   companyName: string;
@@ -65,6 +65,13 @@ type JobData = {
   address: Address;
   description: string;
 };
+type ProjectData = {
+  name: string;
+  description: string;
+  skills: string;
+  liveURL?: string;
+  repoURL?: string;
+};
 type ComplexType =
   | WebInfoType
   | NameData
@@ -73,7 +80,8 @@ type ComplexType =
   | Address
   | EducationData
   | JobData
-  | ReferenceData;
+  | ReferenceData
+  | ProjectData;
 
 type StatefulDataHelper<T> = {
   [P in keyof T]: {
@@ -100,17 +108,6 @@ type Payload<T> = {
   error: boolean;
 };
 
-type ResumeData = {
-  name: NameData;
-  contactAddress: Address;
-  contactWeb: WebContactData;
-  contactPhone: PhoneContactData;
-  workExperience: Array<JobData>;
-  education: Array<EducationData>;
-  skills: Array<string>;
-  references: Array<ReferenceData>;
-};
-
 export { prefixes, suffixes, pronouns, degrees, degreeTypes };
 export type {
   JobData,
@@ -127,5 +124,5 @@ export type {
   Payload,
   WebInfoType,
   NonCollegiateEducationData,
+  ProjectData,
 };
-export default ResumeData;

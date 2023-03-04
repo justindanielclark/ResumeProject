@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PhoneContactData, Payload, StatefulData } from "../../types/resumeData";
-import FormContainer from "../FormContainer/FormContainer";
+import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import { checkValidPhoneNumber } from "../../utils/inputValidation";
-import SubHeader from "../FormInput/SubHeader";
 import TextInput from "../FormInput/TextInput";
 
 type State = StatefulData<PhoneContactData>;
@@ -13,6 +12,8 @@ type Props = {
   nextHandler: () => void;
   prevHandler: () => void;
   submitHandler: (payload: Payload<PhoneContactData>) => void;
+  animating: FormAnimatingTypes;
+  handleAnimationEnd?: () => void;
 };
 function PhoneContactForm({
   submitHandler,
@@ -20,24 +21,42 @@ function PhoneContactForm({
   prevHandler,
   propState,
   prevRendered,
+  animating,
+  handleAnimationEnd,
 }: Props) {
-  const [state, setState] = useState<State>({
-    home: {
-      data: propState.home,
-      //!
-      error: prevRendered ? true : false,
-    },
-    mobile: {
-      data: propState.mobile,
-      //!
-      error: prevRendered ? true : false,
-    },
-    other: {
-      data: propState.other,
-      //!
-      error: prevRendered ? true : false,
-    },
-  });
+  const [state, setState] = useState<State>(createState(propState, prevRendered));
+  useEffect(() => {
+    console.log("Phone Contact Form:");
+    console.log({ state });
+  }, [state]);
+  function createState(propState: PhoneContactData, prevRendered: boolean): State {
+    return {
+      mobile: {
+        data: propState.mobile,
+        error: prevRendered
+          ? propState.mobile === ""
+            ? true
+            : !checkValidPhoneNumber(propState.mobile)
+          : false,
+      },
+      home: {
+        data: propState.home,
+        error: prevRendered
+          ? propState.home === ""
+            ? false
+            : !checkValidPhoneNumber(propState.home)
+          : false,
+      },
+      other: {
+        data: propState.other,
+        error: prevRendered
+          ? propState.home === ""
+            ? false
+            : !checkValidPhoneNumber(propState.home)
+          : false,
+      },
+    };
+  }
   function onPhoneFieldChange(e: React.ChangeEvent<HTMLInputElement>) {
     const input = e.target.value;
     const inputChar = input.length > 0 ? input[input.length - 1] : "";
@@ -155,8 +174,8 @@ function PhoneContactForm({
     const input = e.target.value;
     const stateField = e.target.name as keyof State;
     const hasError = !checkValidPhoneNumber(input);
-    if (state[stateField].error !== hasError) {
-      if (required) {
+    if (required) {
+      if (state[stateField].error !== hasError) {
         setState({
           ...state,
           [stateField]: {
@@ -164,25 +183,24 @@ function PhoneContactForm({
             error: hasError,
           },
         });
-        return;
-      } else {
-        if (input === "") {
-          setState({
-            ...state,
-            [stateField]: {
-              data: state[stateField].data,
-              error: false,
-            },
-          });
-        } else {
-          setState({
-            ...state,
-            [stateField]: {
-              data: state[stateField].data,
-              error: hasError,
-            },
-          });
-        }
+      }
+    } else {
+      if (input === "" && state[stateField].error) {
+        setState({
+          ...state,
+          [stateField]: {
+            data: state[stateField].data,
+            error: false,
+          },
+        });
+      } else if (input !== "" && state[stateField].error !== hasError) {
+        setState({
+          ...state,
+          [stateField]: {
+            data: state[stateField].data,
+            error: true,
+          },
+        });
       }
     }
   }
@@ -204,6 +222,8 @@ function PhoneContactForm({
       title="Phone Contact Information:"
       nextHandler={handleSubmit}
       prevHandler={prevHandler}
+      animating={animating}
+      handleAnimationEnd={handleAnimationEnd}
     >
       <TextInput
         label="Mobile:"

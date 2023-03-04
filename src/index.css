@@ -5,22 +5,33 @@
   --secondary: #fafafa;
 }
 
+@media print {
+  * {
+    print-color-adjust: exact;
+  }
+  body {
+    print-color-adjust: exact;
+    width: 8.5in;
+    height: 11in;
+    margin: 30mm 45mm 30mm 45mm;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
 
 * {
   scrollbar-width: .5rem;
   scrollbar-color: var(--secondary) var(--primary);
 }
-
 /* Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
   width: .5rem;
 }
-
 *::-webkit-scrollbar-track {
   background: var(--primary);
   /* border-radius: 5px; */
 }
-
 *::-webkit-scrollbar-thumb {
   background-color: var(--secondary);
   border-radius: 14px;

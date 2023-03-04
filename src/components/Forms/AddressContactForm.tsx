@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import FormContainer from "../FormContainer/FormContainer";
+import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
 import SelectInput from "../FormInput/SelectInput";
 import { Address, StatefulData } from "../../types/resumeData";
-import SubHeader from "../FormInput/SubHeader";
 import stateAbbreviations from "../../data/stateAbbreviations";
 import { checkInputForNotEmpty, checkValidZIP } from "../../utils/inputValidation";
 import { Payload } from "../../types/resumeData";
@@ -20,22 +19,18 @@ type Props = {
   nextHandler: () => void;
   prevHandler: () => void;
   submitHandler: (payload: { data: Address; error: boolean }) => void;
+  animating: FormAnimatingTypes;
+  handleAnimationEnd?: () => void;
 };
-
-function AddressContactForm({
-  submitHandler,
-  nextHandler,
-  prevHandler,
-  prevRendered,
-  propState,
-}: Props) {
-  const [state, setState] = useState<State>({
+function createState(propState: Address, prevRendered: boolean): State {
+  return {
     address1: {
       data: propState.address1,
       error: prevRendered ? !checkInputForNotEmpty(propState.address1) : false,
     },
     address2: {
       data: propState.address2 ? propState.address2 : "",
+      error: false,
     },
     city: {
       data: propState.city,
@@ -43,12 +38,24 @@ function AddressContactForm({
     },
     state: {
       data: propState.state,
+      error: false,
     },
     zip: {
       data: propState.address1,
       error: prevRendered ? !checkValidZIP(propState.zip) : false,
     },
-  });
+  };
+}
+function AddressContactForm({
+  submitHandler,
+  nextHandler,
+  prevHandler,
+  prevRendered,
+  propState,
+  animating,
+  handleAnimationEnd,
+}: Props) {
+  const [state, setState] = useState<State>(createState(propState, prevRendered));
 
   const handleSubmit = () => {
     const streetAddressValidity = !state.address1.error;
@@ -68,9 +75,16 @@ function AddressContactForm({
       payloadData.data.address2 = state.address2.data;
     }
     submitHandler(payloadData);
+    nextHandler();
   };
   return (
-    <FormContainer title="Contact Information" nextHandler={nextHandler} prevHandler={prevHandler}>
+    <FormContainer
+      title="Contact Information"
+      nextHandler={handleSubmit}
+      prevHandler={prevHandler}
+      animating={animating}
+      handleAnimationEnd={handleAnimationEnd}
+    >
       <TextInput
         label="Street Address:"
         labelID="address1"

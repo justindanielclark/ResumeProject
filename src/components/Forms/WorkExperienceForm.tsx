@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import stateAbbreviations from "../../data/stateAbbreviations";
-import FormContainer from "../FormContainer/FormContainer";
+import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
 import SelectInput from "../FormInput/SelectInput";
 import { Address, JobData, StatefulData } from "../../types/resumeData";
@@ -9,6 +9,11 @@ import SubHeader from "../FormInput/SubHeader";
 import FormSubsection from "./FormSubSection";
 import TextAreaInput from "../FormInput/TextAreaInput";
 import jobExamples from "../../data/jobExamples";
+import DateInput from "../FormInput/DateInput";
+import {
+  handleTextInputChangeWithArrayData,
+  handleTextInputBlurWithArrayData,
+} from "../../utils/handlers";
 type State = Array<StatefulData<JobData>>;
 type Props = {
   propState: Array<JobData>;
@@ -16,9 +21,22 @@ type Props = {
   nextHandler: () => void;
   prevHandler?: () => void;
   submitHandler: (payload: { data: Array<JobData>; error: boolean }) => void;
+  animating: FormAnimatingTypes;
+  handleAnimationEnd?: () => void;
 };
-function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState }: Props) {
+function WorkExperienceForm({
+  submitHandler,
+  nextHandler,
+  prevHandler,
+  propState,
+  animating,
+  handleAnimationEnd,
+}: Props) {
   const [state, setState] = useState<State>(createState(propState));
+  useEffect(() => {
+    console.log("WorkExperienceForm:");
+    console.log({ state });
+  }, [state]);
   function createState(jobData: Array<JobData>): State {
     const state: State = [];
     jobData.forEach((job) => {
@@ -81,7 +99,7 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
     return state;
   }
   function handleClickAddJob(): void {
-    const newJob = {
+    const newJob: StatefulData<JobData> = {
       address: {
         data: {
           address1: {
@@ -93,7 +111,7 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
             error: false,
           },
           state: {
-            data: "",
+            data: "AL",
             error: false,
           },
           zip: {
@@ -104,7 +122,10 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
         error: false,
       },
       startDate: {
-        data: new Date(),
+        data: {
+          current: false,
+          data: new Date(),
+        },
         error: false,
       },
       companyName: {
@@ -116,7 +137,10 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
         error: false,
       },
       endDate: {
-        data: new Date(),
+        data: {
+          current: false,
+          data: new Date(),
+        },
         error: false,
       },
       jobTitle: {
@@ -130,92 +154,6 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
   function handleClickRemoveJob(idx: number): void {
     const newState: State = state.filter((job, index) => {
       return index !== idx;
-    });
-    setState(newState);
-  }
-  function handleTextInputChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-    itemIndex: number,
-    stateField: keyof StatefulData<JobData>
-  ): void {
-    const newState = state.map((jobData, idx) => {
-      if (idx !== itemIndex) {
-        return jobData;
-      } else {
-        const newStateItem: StatefulData<JobData> = {
-          ...jobData,
-          [stateField]: {
-            data: e.target.value,
-            error: false,
-          },
-        };
-        return newStateItem;
-      }
-    });
-    setState(newState);
-  }
-  function handleTextInputBlur(
-    e: React.ChangeEvent<HTMLInputElement>,
-    itemIndex: number,
-    stateField: keyof StatefulData<JobData>,
-    validatorFunc: (str: string) => boolean
-  ) {
-    const newState = state.map((jobData, idx) => {
-      if (idx !== itemIndex) {
-        return jobData;
-      } else {
-        const newStateItem: StatefulData<JobData> = {
-          ...jobData,
-          [stateField]: {
-            data: e.target.value,
-            error: !validatorFunc(e.target.value),
-          },
-        };
-        return newStateItem;
-      }
-    });
-    setState(newState);
-  }
-  function handleTextAreaInputChange(
-    e: React.ChangeEvent<HTMLTextAreaElement>,
-    itemIndex: number,
-    stateField: keyof StatefulData<JobData>
-  ): void {
-    const newState = state.map((jobData, idx) => {
-      if (idx !== itemIndex) {
-        return jobData;
-      } else {
-        const newStateItem: StatefulData<JobData> = {
-          ...jobData,
-          [stateField]: {
-            data: e.target.value,
-            error: false,
-          },
-        };
-        return newStateItem;
-      }
-    });
-    setState(newState);
-  }
-  function handleTextAreaInputBlur(
-    e: React.ChangeEvent<HTMLTextAreaElement>,
-    itemIndex: number,
-    stateField: keyof StatefulData<JobData>,
-    validatorFunc: (str: string) => boolean
-  ) {
-    const newState = state.map((jobData, idx) => {
-      if (idx !== itemIndex) {
-        return jobData;
-      } else {
-        const newStateItem: StatefulData<JobData> = {
-          ...jobData,
-          [stateField]: {
-            data: e.target.value,
-            error: !validatorFunc(e.target.value),
-          },
-        };
-        return newStateItem;
-      }
     });
     setState(newState);
   }
@@ -299,86 +237,6 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
     newState[itemIndex].address.error = error;
     setState(newState);
   }
-  function handleDateInputChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-    itemIndex: number,
-    stateField: keyof StatefulData<JobData>
-  ) {
-    const newState = state.map((jobData, idx) => {
-      if (idx !== itemIndex) {
-        return jobData;
-      } else {
-        const newStateItem: StatefulData<JobData> = {
-          ...jobData,
-          [stateField]: {
-            data: new Date(e.target.value),
-            error: false,
-          },
-        };
-        if (newStateItem.startDate.data > newStateItem.endDate.data) {
-          newStateItem.startDate = {
-            data: newStateItem.startDate.data,
-            error: true,
-          };
-          newStateItem.endDate = {
-            data: newStateItem.endDate.data,
-            error: true,
-          };
-        } else {
-          newStateItem.startDate = {
-            data: newStateItem.startDate.data,
-            error: false,
-          };
-          newStateItem.endDate = {
-            data: newStateItem.endDate.data,
-            error: false,
-          };
-        }
-        return newStateItem;
-      }
-    });
-    setState(newState);
-  }
-  function handleDateBlur(
-    e: React.ChangeEvent<HTMLInputElement>,
-    itemIndex: number,
-    stateField: keyof StatefulData<JobData>
-  ) {
-    const newState = state.map((jobData, idx) => {
-      if (idx !== itemIndex) {
-        return jobData;
-      } else {
-        const newStateItem: StatefulData<JobData> = {
-          ...jobData,
-          [stateField]: {
-            data: new Date(e.target.value),
-            error: false,
-          },
-        };
-        if (newStateItem.startDate.data > newStateItem.endDate.data) {
-          newStateItem.startDate = {
-            data: newStateItem.startDate.data,
-            error: true,
-          };
-          newStateItem.endDate = {
-            data: newStateItem.endDate.data,
-            error: true,
-          };
-        } else {
-          newStateItem.startDate = {
-            data: newStateItem.startDate.data,
-            error: false,
-          };
-          newStateItem.endDate = {
-            data: newStateItem.endDate.data,
-            error: false,
-          };
-        }
-        return newStateItem;
-      }
-    });
-    setState(newState);
-  }
   function handleAddressSelectInputChange(
     e: React.ChangeEvent<HTMLSelectElement>,
     idx: number,
@@ -418,8 +276,6 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
     const jobs: Array<JSX.Element> = [];
 
     state.forEach((job, idx) => {
-      const startDate = job.startDate.data;
-      const endDate = job.endDate.data;
       jobs.push(
         <React.Fragment key={idx}>
           <SubHeader title={`Job ${idx + 1}:`} handleRemove={() => handleClickRemoveJob(idx)} />
@@ -427,50 +283,95 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
             <TextInput
               label="Company Name:"
               labelID={`companyName_${idx}`}
-              labelName={`companyName_${idx}`}
+              labelName={"companyName"}
               required={true}
               error={state[idx].companyName.error}
               errorMessage="A Company Name is Required"
-              onChange={(e) => handleTextInputChange(e, idx, "companyName")}
-              onBlur={(e) => handleTextInputBlur(e, idx, "companyName", checkInputForNotEmpty)}
+              onChange={(e) => handleTextInputChangeWithArrayData(e, idx, state, setState)}
+              onBlur={(e) =>
+                handleTextInputBlurWithArrayData(e, idx, state, setState, checkInputForNotEmpty)
+              }
               value={state[idx].companyName.data}
               placeholder={jobExamples[idx].companyName}
             />
             <TextInput
               label="Title:"
               labelID={`title_${idx}`}
-              labelName={`title_${idx}`}
+              labelName={`jobTitle`}
               required={true}
               error={state[idx].jobTitle.error}
               errorMessage="A Job Title Is Required"
-              onChange={(e) => handleTextInputChange(e, idx, "jobTitle")}
-              onBlur={(e) => handleTextInputBlur(e, idx, "jobTitle", checkInputForNotEmpty)}
+              onChange={(e) => handleTextInputChangeWithArrayData(e, idx, state, setState)}
+              onBlur={(e) =>
+                handleTextInputBlurWithArrayData(e, idx, state, setState, checkInputForNotEmpty)
+              }
               value={state[idx].jobTitle.data}
               placeholder={jobExamples[idx].jobTitle}
             />
-            <TextInput
-              label="Start Date:"
-              labelID={`startDate_${idx}`}
-              labelName={`startDate_${idx}`}
-              required={true}
+            <DateInput
               error={state[idx].startDate.error}
-              type="date"
-              errorMessage="Start Date Must Precede End Date"
-              onChange={(e) => handleDateInputChange(e, idx, "startDate")}
-              onBlur={(e) => handleDateBlur(e, idx, "startDate")}
-              value={`${startDate.toISOString().slice(0, 10)}`}
-            />
-            <TextInput
-              label="End Date:"
-              labelID={`endDate${idx}`}
-              labelName={`endDate${idx}`}
+              errorMessage={"Start Date Must Preceed Your End Date"}
+              dateValue={state[idx].startDate.data.data}
+              label={"Start Date:"}
               required={true}
-              error={state[idx].endDate.error}
-              type="date"
-              errorMessage="Start Date Must Precede End Date"
-              onChange={(e) => handleDateInputChange(e, idx, "endDate")}
-              onBlur={(e) => handleDateBlur(e, idx, "endDate")}
-              value={`${endDate.toISOString().slice(0, 10)}`}
+              labelName={`startDate${idx}`}
+              handleChange={function (date) {
+                const newState: Array<StatefulData<JobData>> = state.map((dataPoint, index) => {
+                  if (idx !== index) {
+                    return dataPoint;
+                  } else {
+                    const newDataPoint: StatefulData<JobData> = {
+                      ...dataPoint,
+                      startDate: {
+                        data: {
+                          data: date,
+                        },
+                        error: dataPoint.endDate.data.current
+                          ? false
+                          : dataPoint.startDate.data.data > dataPoint.endDate.data.data,
+                      },
+                    };
+                    return newDataPoint;
+                  }
+                });
+                setState(newState);
+              }}
+            />
+            <DateInput
+              error={false}
+              errorMessage={""}
+              dateValue={state[idx].endDate.data.data}
+              label={"End Date:"}
+              required={true}
+              handleChange={function (date, current) {
+                const newState: Array<StatefulData<JobData>> = state.map((dataPoint, index) => {
+                  if (idx !== index) {
+                    return dataPoint;
+                  } else {
+                    const newDataPoint: StatefulData<JobData> = {
+                      ...dataPoint,
+                      startDate: {
+                        data: {
+                          data: dataPoint.startDate.data.data,
+                        },
+                        error: current ? false : dataPoint.startDate.data.data > date,
+                      },
+                      endDate: {
+                        data: {
+                          data: date,
+                          current: current,
+                        },
+                        error: false,
+                      },
+                    };
+                    return newDataPoint;
+                  }
+                });
+                setState(newState);
+              }}
+              labelName={`endDate_${idx}`}
+              currentText={"Current Employer"}
+              currentValue={state[idx].endDate.data.current}
             />
             <TextInput
               label="Address:"
@@ -487,9 +388,8 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
               label="Apt/Suite/Addl Info:"
               labelID={`address2_${idx}`}
               labelName={`address2_${idx}`}
-              required={true}
+              required={false}
               onChange={(e) => handleAddressTextInputChange(e, idx, "address2")}
-              onBlur={(e) => handleAddressTextInputBlur(e, idx, "address2", checkInputForNotEmpty)}
               placeholder={jobExamples[idx].address.address2}
             />
             <TextInput
@@ -527,9 +427,11 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
             <TextAreaInput
               label="Description:"
               labelID={`description_${idx}`}
-              labelName={`description_${idx}`}
-              onChange={(e) => handleTextAreaInputChange(e, idx, "description")}
-              onBlur={(e) => handleTextAreaInputBlur(e, idx, "description", checkInputForNotEmpty)}
+              labelName={`description`}
+              onChange={(e) => handleTextInputChangeWithArrayData(e, idx, state, setState)}
+              onBlur={(e) =>
+                handleTextInputBlurWithArrayData(e, idx, state, setState, checkInputForNotEmpty)
+              }
               required={true}
               errorMessage="A Job Description is Required"
               placeholder={jobExamples[idx].description}
@@ -591,14 +493,16 @@ function WorkExperienceForm({ submitHandler, nextHandler, prevHandler, propState
       nextHandler={handleSubmit}
       prevHandler={prevHandler}
       handleAdd={state.length < jobExamples.length ? handleClickAddJob : undefined}
+      animating={animating}
+      handleAnimationEnd={handleAnimationEnd}
     >
       {state.length === 0 ? (
-        <>
+        <div className="flex h-full flex-col items-center justify-center">
           <p className="text-md px-3 pt-2 text-center">No Jobs Added:</p>
           <p className="px-3 pb-2 text-center text-sm">
             To Add A Job, Click the + In The Upper Right Corner
           </p>
-        </>
+        </div>
       ) : (
         renderJobs(state)
       )}

@@ -2,7 +2,7 @@ import React from "react";
 import { StatefulData } from "../types/resumeData";
 
 function handleTextInputChange<T>(
-  e: React.ChangeEvent<HTMLInputElement>,
+  e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
   state: StatefulData<T>,
   setState: React.Dispatch<React.SetStateAction<StatefulData<T>>>,
   validatorFunc: (str: string) => boolean
@@ -19,7 +19,7 @@ function handleTextInputChange<T>(
 }
 
 function handleTextInputChangeWithArrayData<T>(
-  e: React.ChangeEvent<HTMLInputElement>,
+  e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
   idx: number,
   state: Array<StatefulData<T>>,
   setState: React.Dispatch<React.SetStateAction<Array<StatefulData<T>>>>
@@ -44,46 +44,52 @@ function handleTextInputChangeWithArrayData<T>(
 }
 
 function handleTextInputBlur<T>(
-  e: React.ChangeEvent<HTMLInputElement>,
+  e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
   state: StatefulData<T>,
   setState: React.Dispatch<React.SetStateAction<StatefulData<T>>>,
   validatorFunc: (str: string) => boolean
 ): void {
-  const valid = validatorFunc(e.target.value);
+  const input = e.target.value;
+  const valid = validatorFunc(input);
   const stateField = e.target.name;
-  setState({
-    ...state,
-    [stateField]: {
-      data: e.target.value,
-      error: !valid,
-    },
-  });
+  if (state[stateField as keyof StatefulData<T>].error !== !valid) {
+    setState({
+      ...state,
+      [stateField]: {
+        data: input,
+        error: !valid,
+      },
+    });
+  }
 }
 
 function handleTextInputBlurWithArrayData<T>(
-  e: React.ChangeEvent<HTMLInputElement>,
+  e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
   idx: number,
   state: Array<StatefulData<T>>,
   setState: React.Dispatch<React.SetStateAction<Array<StatefulData<T>>>>,
   validatorFunc: (str: string) => boolean
 ): void {
   const inputValue = e.target.value;
+  const valid = validatorFunc(inputValue);
   const stateField = e.target.name;
-  const newState: Array<StatefulData<T>> = state.map((data, index) => {
-    if (index !== idx) {
-      return data;
-    } else {
-      const newData: StatefulData<T> = {
-        ...data,
-        [stateField]: {
-          data: inputValue,
-          error: !validatorFunc(inputValue),
-        },
-      };
-      return newData;
-    }
-  });
-  setState(newState);
+  if (state[idx][stateField as keyof StatefulData<T>].error !== !valid) {
+    const newState: Array<StatefulData<T>> = state.map((data, index) => {
+      if (index !== idx) {
+        return data;
+      } else {
+        const newData: StatefulData<T> = {
+          ...data,
+          [stateField]: {
+            data: inputValue,
+            error: !validatorFunc(inputValue),
+          },
+        };
+        return newData;
+      }
+    });
+    setState(newState);
+  }
 }
 
 function handleSelectInputChange<T>(
