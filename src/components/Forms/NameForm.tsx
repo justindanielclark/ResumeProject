@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
 import SelectInput from "../FormInput/SelectInput";
@@ -37,10 +37,6 @@ function NameForm({
   handleAnimationEnd,
 }: Props) {
   const [state, setState] = useState<State>(createState(propState, prevRendered));
-  useEffect(() => {
-    console.log("NameForm:");
-    console.log({ state });
-  }, [state]);
   const handlePronounChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setState({
       ...state,

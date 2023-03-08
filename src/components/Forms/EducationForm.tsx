@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
 import SelectInput from "../FormInput/SelectInput";
@@ -33,10 +33,6 @@ function EducationForm({
   handleAnimationEnd,
 }: Props) {
   const [state, setState] = useState<State>(createState(propState));
-  useEffect(() => {
-    console.log("FormalEducationForm");
-    console.log({ state });
-  }, [state]);
   function createState(educations: Array<EducationData>): State {
     const state: State = educations.map((data) => {
       const stateObj: StatefulData<EducationData> = {
@@ -236,11 +232,7 @@ function EducationForm({
   //!RENDER
   return (
     <FormContainer
-      title={
-        state.length <= 1
-          ? "Collegiate Education:"
-          : `Collegiate Education: (${state.length} Listed)`
-      }
+      title={state.length <= 1 ? "Collegiate Edu.:" : `Collegiate Edu.: (${state.length} Listed)`}
       nextHandler={handleSubmit}
       prevHandler={prevHandler}
       handleAdd={state.length < schoolExamples.length ? handleClickAddEdu : undefined}

@@ -55,7 +55,7 @@ function TextInput({
     <div className="mb-1 flex flex-col justify-start first:mt-1 last:mb-2">
       {error && errorMessage ? generateTopLabel(error, errorMessage) : generateTopLabel(false, "")}
       <input
-        className="mx-3 h-6 rounded-md  px-2 placeholder-slate-500 outline-slate-500"
+        className="mx-3 h-5 rounded-md  px-2 placeholder-slate-500 outline-slate-500"
         type={type ? type : "text"}
         name={labelName}
         id={labelID}

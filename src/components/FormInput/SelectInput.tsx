@@ -62,7 +62,7 @@ function SelectInput({
     <div className="mb-1 flex flex-col justify-start first:mt-1 last:mb-2">
       {error && errorMessage ? generateTopLabel(error, errorMessage) : generateTopLabel(false, "")}
       <select
-        className="mx-3 rounded-md  px-1 outline-slate-500"
+        className="mx-3 h-5  rounded-md px-1 outline-slate-500"
         name={labelName}
         id={labelID}
         value={value ? value : undefined}

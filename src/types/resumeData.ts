@@ -125,4 +125,5 @@ export type {
   WebInfoType,
   NonCollegiateEducationData,
   ProjectData,
+  DateDataPointType,
 };

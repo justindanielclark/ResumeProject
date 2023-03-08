@@ -12,7 +12,7 @@ import {
   ProjectData,
 } from "./types/resumeData";
 import reducer from "./utils/reducer";
-import { useEffect, useReducer, useState } from "react";
+import { useReducer, useState } from "react";
 import NameForm from "./components/Forms/NameForm";
 import { pronouns } from "./types/resumeData";
 import AddressContactForm from "./components/Forms/AddressContactForm";
@@ -27,160 +27,195 @@ import BreadcrumbBox from "./components/BreadcrumbBox/BreadcrumbBox";
 import BreadCrumbDataType from "./types/breadcrumbData";
 import { FormAnimatingTypes } from "./components/FormContainer/FormContainer";
 import AnimatingAppState from "./types/animatingAppState";
-
-function createState(): AppState {
-  return {
-    name: {
-      data: {
-        prefix: "-None Selected-",
-        firstName: "",
-        lastName: "",
-        suffix: "-None Selected-",
-        pronouns: pronouns[0],
-      },
-      prevRendered: false,
-      error: false,
-    },
-    contactAddress: {
-      data: {
-        address1: "",
-        city: "",
-        state: "CA",
-        zip: "",
-      },
-      prevRendered: false,
-      error: false,
-    },
-    contactPhone: {
-      data: {
-        home: "",
-        mobile: "",
-        other: "",
-      },
-      prevRendered: false,
-      error: false,
-    },
-    contactWeb: {
-      data: {
-        email: [],
-        websites: [],
-      },
-      prevRendered: false,
-      error: false,
-    },
-    education: {
-      data: [],
-      prevRendered: false,
-      error: false,
-    },
-    nonCollegiateEducation: {
-      data: [],
-      prevRendered: false,
-      error: false,
-    },
-    references: {
-      data: [],
-      prevRendered: false,
-      error: false,
-    },
-    workExperience: {
-      data: [],
-      prevRendered: false,
-      error: false,
-    },
-    projects: {
-      data: [],
-      prevRendered: false,
-      error: false,
-    },
-  };
-}
-
-function createBreadcrumbData(state: AppState): Array<BreadCrumbDataType> {
-  return [
-    {
-      name: "Name",
-      error: state.name.error,
-      handleClick: () => {
-        console.log("dummy");
-      },
-      prevRendered: state.name.prevRendered,
-    },
-    {
-      name: "Address",
-      error: state.contactAddress.error,
-      handleClick: () => {
-        console.log("dummy");
-      },
-      prevRendered: state.contactAddress.prevRendered,
-    },
-    {
-      name: "Phone",
-      error: state.contactPhone.error,
-      handleClick: () => {
-        console.log("dummy");
-      },
-      prevRendered: state.contactPhone.prevRendered,
-    },
-    {
-      name: "Web",
-      error: state.contactWeb.error,
-      handleClick: () => {
-        console.log("dummy");
-      },
-      prevRendered: state.contactWeb.prevRendered,
-    },
-    {
-      name: "Work",
-      error: state.workExperience.error,
-      handleClick: () => {
-        console.log("dummy");
-      },
-      prevRendered: state.workExperience.prevRendered,
-    },
-    {
-      name: "Formal Edu",
-      error: state.education.error,
-      handleClick: () => {
-        console.log("dummy");
-      },
-      prevRendered: state.education.prevRendered,
-    },
-    {
-      name: "Misc. Edu",
-      error: state.nonCollegiateEducation.error,
-      handleClick: () => {
-        console.log("dummy");
-      },
-      prevRendered: state.nonCollegiateEducation.prevRendered,
-    },
-    {
-      name: "Projects",
-      error: state.projects.error,
-      handleClick: () => {
-        console.log("dummy");
-      },
-      prevRendered: state.projects.prevRendered,
-    },
-    {
-      name: "References",
-      error: state.references.error,
-      handleClick: () => {
-        console.log("dummy");
-      },
-      prevRendered: state.references.prevRendered,
-    },
-  ];
-}
-
 function App() {
-  const [animationState, setAnimationState] = useState<AnimatingAppState>({
-    currentSlide: 0,
-    transitionSlide: 1,
-    transitioning: "forward",
-  });
+  const [animationState, setAnimationState] = useState<AnimatingAppState>(createAnimatingState());
   const [state, dispatch] = useReducer(reducer, createState());
-  useEffect(() => console.log({ state }), [state]);
+  function createState(): AppState {
+    return {
+      name: {
+        data: {
+          prefix: "-None Selected-",
+          firstName: "",
+          lastName: "",
+          suffix: "-None Selected-",
+          pronouns: pronouns[0],
+        },
+        prevRendered: false,
+        error: false,
+      },
+      contactAddress: {
+        data: {
+          address1: "",
+          city: "",
+          state: "CA",
+          zip: "",
+        },
+        prevRendered: false,
+        error: false,
+      },
+      contactPhone: {
+        data: {
+          home: "",
+          mobile: "",
+          other: "",
+        },
+        prevRendered: false,
+        error: false,
+      },
+      contactWeb: {
+        data: {
+          email: [],
+          websites: [],
+        },
+        prevRendered: false,
+        error: false,
+      },
+      education: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
+      nonCollegiateEducation: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
+      references: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
+      workExperience: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
+      projects: {
+        data: [],
+        prevRendered: false,
+        error: false,
+      },
+    };
+  }
+  function createAnimatingState(): AnimatingAppState {
+    return {
+      currentSlide: 0,
+      transitionSlide: 1,
+      transitioning: "none",
+    };
+  }
+  function createBreadcrumbData(state: AppState): Array<BreadCrumbDataType> {
+    return [
+      {
+        name: "Name",
+        error: state.name.error,
+        handleClick: () => {
+          setAnimationState({
+            currentSlide: animationState.currentSlide,
+            transitionSlide: 0,
+            transitioning: 0 < animationState.currentSlide ? "backwards" : "forward",
+          });
+        },
+        prevRendered: state.name.prevRendered,
+      },
+      {
+        name: "Address",
+        error: state.contactAddress.error,
+        handleClick: () => {
+          setAnimationState({
+            currentSlide: animationState.currentSlide,
+            transitionSlide: 1,
+            transitioning: 1 < animationState.currentSlide ? "backwards" : "forward",
+          });
+        },
+        prevRendered: state.contactAddress.prevRendered,
+      },
+      {
+        name: "Phone",
+        error: state.contactPhone.error,
+        handleClick: () => {
+          setAnimationState({
+            currentSlide: animationState.currentSlide,
+            transitionSlide: 2,
+            transitioning: 2 < animationState.currentSlide ? "backwards" : "forward",
+          });
+        },
+        prevRendered: state.contactPhone.prevRendered,
+      },
+      {
+        name: "Web",
+        error: state.contactWeb.error,
+        handleClick: () => {
+          setAnimationState({
+            currentSlide: animationState.currentSlide,
+            transitionSlide: 3,
+            transitioning: 3 < animationState.currentSlide ? "backwards" : "forward",
+          });
+        },
+        prevRendered: state.contactWeb.prevRendered,
+      },
+      {
+        name: "Work",
+        error: state.workExperience.error,
+        handleClick: () => {
+          setAnimationState({
+            currentSlide: animationState.currentSlide,
+            transitionSlide: 4,
+            transitioning: 4 < animationState.currentSlide ? "backwards" : "forward",
+          });
+        },
+        prevRendered: state.workExperience.prevRendered,
+      },
+      {
+        name: "Formal Edu",
+        error: state.education.error,
+        handleClick: () => {
+          setAnimationState({
+            currentSlide: animationState.currentSlide,
+            transitionSlide: 5,
+            transitioning: 5 < animationState.currentSlide ? "backwards" : "forward",
+          });
+        },
+        prevRendered: state.education.prevRendered,
+      },
+      {
+        name: "Misc. Edu",
+        error: state.nonCollegiateEducation.error,
+        handleClick: () => {
+          setAnimationState({
+            currentSlide: animationState.currentSlide,
+            transitionSlide: 6,
+            transitioning: 6 < animationState.currentSlide ? "backwards" : "forward",
+          });
+        },
+        prevRendered: state.nonCollegiateEducation.prevRendered,
+      },
+      {
+        name: "Projects",
+        error: state.projects.error,
+        handleClick: () => {
+          setAnimationState({
+            currentSlide: animationState.currentSlide,
+            transitionSlide: 7,
+            transitioning: 7 < animationState.currentSlide ? "backwards" : "forward",
+          });
+        },
+        prevRendered: state.projects.prevRendered,
+      },
+      {
+        name: "References",
+        error: state.references.error,
+        handleClick: () => {
+          setAnimationState({
+            currentSlide: animationState.currentSlide,
+            transitionSlide: 8,
+            transitioning: 8 < animationState.currentSlide ? "backwards" : "forward",
+          });
+        },
+        prevRendered: state.references.prevRendered,
+      },
+    ];
+  }
   const handleSubmitName = (payload: Payload<NameData>) => {
     dispatch({ type: "submitName", payload });
   };
@@ -221,7 +256,11 @@ function App() {
       return (
         <>
           {getFormByIndex(currentIndex, "forward", () => {
-            //!
+            setAnimationState({
+              transitioning: "none",
+              currentSlide: animationState.transitionSlide,
+              transitionSlide: animationState.transitionSlide + 1,
+            });
           })}
           {getFormByIndex(transitionToIndex, "forward")}
         </>
@@ -229,7 +268,13 @@ function App() {
     } else {
       return (
         <>
-          {getFormByIndex(transitionToIndex, "backwards")}
+          {getFormByIndex(transitionToIndex, "backwards", () => {
+            setAnimationState({
+              transitioning: "none",
+              currentSlide: animationState.transitionSlide,
+              transitionSlide: animationState.transitionSlide - 1,
+            });
+          })}
           {getFormByIndex(currentIndex, "backwards")}
         </>
       );
@@ -243,7 +288,13 @@ function App() {
         case 0: {
           return (
             <NameForm
-              nextHandler={dummyHandler}
+              nextHandler={() => {
+                setAnimationState({
+                  transitioning: "forward",
+                  currentSlide: 0,
+                  transitionSlide: 1,
+                });
+              }}
               submitHandler={handleSubmitName}
               propState={state.name.data}
               prevRendered={state.name.prevRendered}
@@ -255,8 +306,20 @@ function App() {
         case 1: {
           return (
             <AddressContactForm
-              nextHandler={dummyHandler}
-              prevHandler={dummyHandler}
+              nextHandler={() => {
+                setAnimationState({
+                  transitioning: "forward",
+                  currentSlide: 1,
+                  transitionSlide: 2,
+                });
+              }}
+              prevHandler={() => {
+                setAnimationState({
+                  transitioning: "backwards",
+                  currentSlide: 1,
+                  transitionSlide: 0,
+                });
+              }}
               submitHandler={handleSubmitAddressContactInfo}
               prevRendered={state.contactAddress.prevRendered}
               propState={state.contactAddress.data}
@@ -268,8 +331,20 @@ function App() {
         case 2: {
           return (
             <PhoneContactForm
-              nextHandler={dummyHandler}
-              prevHandler={dummyHandler}
+              nextHandler={() => {
+                setAnimationState({
+                  transitioning: "forward",
+                  currentSlide: 2,
+                  transitionSlide: 3,
+                });
+              }}
+              prevHandler={() => {
+                setAnimationState({
+                  transitioning: "backwards",
+                  currentSlide: 2,
+                  transitionSlide: 1,
+                });
+              }}
               submitHandler={handleSubmitPhoneContactInfo}
               prevRendered={state.contactPhone.prevRendered}
               propState={state.contactPhone.data}
@@ -281,8 +356,20 @@ function App() {
         case 3: {
           return (
             <WebsiteContactForm
-              nextHandler={dummyHandler}
-              prevHandler={dummyHandler}
+              nextHandler={() => {
+                setAnimationState({
+                  transitioning: "forward",
+                  currentSlide: 3,
+                  transitionSlide: 4,
+                });
+              }}
+              prevHandler={() => {
+                setAnimationState({
+                  transitioning: "backwards",
+                  currentSlide: 3,
+                  transitionSlide: 2,
+                });
+              }}
               submitHandler={handleSubmitWebsiteContactInfo}
               prevRendered={state.contactWeb.prevRendered}
               propState={state.contactWeb.data}
@@ -294,8 +381,20 @@ function App() {
         case 4: {
           return (
             <WorkExperienceForm
-              nextHandler={dummyHandler}
-              prevHandler={dummyHandler}
+              nextHandler={() => {
+                setAnimationState({
+                  transitioning: "forward",
+                  currentSlide: 4,
+                  transitionSlide: 5,
+                });
+              }}
+              prevHandler={() => {
+                setAnimationState({
+                  transitioning: "backwards",
+                  currentSlide: 4,
+                  transitionSlide: 3,
+                });
+              }}
               submitHandler={handleSubmitWorkExperienceInfo}
               prevRendered={state.workExperience.prevRendered}
               propState={state.workExperience.data}
@@ -307,8 +406,20 @@ function App() {
         case 5: {
           return (
             <EducationForm
-              nextHandler={dummyHandler}
-              prevHandler={dummyHandler}
+              nextHandler={() => {
+                setAnimationState({
+                  transitioning: "forward",
+                  currentSlide: 5,
+                  transitionSlide: 6,
+                });
+              }}
+              prevHandler={() => {
+                setAnimationState({
+                  transitioning: "backwards",
+                  currentSlide: 5,
+                  transitionSlide: 4,
+                });
+              }}
               submitHandler={handleSubmitEducationInfo}
               prevRendered={state.education.prevRendered}
               propState={state.education.data}
@@ -320,8 +431,20 @@ function App() {
         case 6: {
           return (
             <NonCollegiateEducationForm
-              nextHandler={dummyHandler}
-              prevHandler={dummyHandler}
+              nextHandler={() => {
+                setAnimationState({
+                  transitioning: "forward",
+                  currentSlide: 6,
+                  transitionSlide: 7,
+                });
+              }}
+              prevHandler={() => {
+                setAnimationState({
+                  transitioning: "backwards",
+                  currentSlide: 6,
+                  transitionSlide: 5,
+                });
+              }}
               submitHandler={handleSubmitNonCollegiateEducationInfo}
               prevRendered={state.nonCollegiateEducation.prevRendered}
               propState={state.nonCollegiateEducation.data}
@@ -334,8 +457,20 @@ function App() {
         case 7: {
           return (
             <ProjectsForm
-              nextHandler={dummyHandler}
-              prevHandler={dummyHandler}
+              nextHandler={() => {
+                setAnimationState({
+                  transitioning: "forward",
+                  currentSlide: 7,
+                  transitionSlide: 8,
+                });
+              }}
+              prevHandler={() => {
+                setAnimationState({
+                  transitioning: "backwards",
+                  currentSlide: 7,
+                  transitionSlide: 6,
+                });
+              }}
               submitHandler={handleSubmitProjectInfo}
               propState={state.projects.data}
               animating={animatingContext}
@@ -347,7 +482,13 @@ function App() {
           return (
             <ReferencesForm
               nextHandler={dummyHandler}
-              prevHandler={dummyHandler}
+              prevHandler={() => {
+                setAnimationState({
+                  transitioning: "backwards",
+                  currentSlide: 8,
+                  transitionSlide: 7,
+                });
+              }}
               submitHandler={handleSubmitReferenceInfo}
               propState={state.references.data}
               animating={animatingContext}
@@ -361,6 +502,7 @@ function App() {
       }
     }
   };
+
   const dummyHandler = () => console.log("dummy");
 
   return (
@@ -381,5 +523,4 @@ function App() {
     </div>
   );
 }
-
 export default App;

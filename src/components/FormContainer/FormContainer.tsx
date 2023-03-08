@@ -27,7 +27,7 @@ function FormContainer({
   let animatingClass = "";
   switch (animating) {
     case "forward": {
-      animatingClass = "animate-left";
+      animatingClass = "animate-left -translate-x-full";
       break;
     }
     case "backwards": {
@@ -43,6 +43,7 @@ function FormContainer({
           alt="addItem"
           className="absolute top-0 right-0 z-50 h-4 w-4 -translate-x-0.5 translate-y-0.5 cursor-pointer"
           onClick={handleAdd}
+          tabIndex={0}
         />
       ) : undefined}
       <h1 className="sticky border-b-2 border-slate-700 bg-slate-800 py-2 px-1 text-2xl font-bold text-slate-100">
@@ -51,11 +52,22 @@ function FormContainer({
       <div className="h-60 items-center justify-center overflow-y-auto">{children}</div>
       <div className="flex flex-row justify-between bg-slate-800 p-2">
         {prevHandler ? (
-          <CancelButton type="button" handleClick={prevHandler}>
+          <CancelButton
+            type="button"
+            handleClick={
+              animating === "backwards" || animating === "forward" ? undefined : prevHandler
+            }
+          >
             {"Back"}
           </CancelButton>
         ) : null}
-        <AcceptButton className="ml-auto" type="button" handleClick={nextHandler}>
+        <AcceptButton
+          className="ml-auto"
+          type="button"
+          handleClick={
+            animating === "backwards" || animating === "forward" ? undefined : nextHandler
+          }
+        >
           {"Confirm"}
         </AcceptButton>
       </div>

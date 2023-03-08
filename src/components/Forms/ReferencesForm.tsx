@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ReferenceData, StatefulData } from "../../types/resumeData";
 import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../../components/FormInput/TextInput";
@@ -34,32 +34,28 @@ function ReferencesForm({
   handleAnimationEnd,
 }: Props) {
   const [state, setState] = useState<State>(createState(propState));
-  useEffect(() => {
-    console.log("ReferencesForm:");
-    console.log({ state });
-  }, [state]);
   function createState(propState: Array<ReferenceData>): Array<StatefulData<ReferenceData>> {
     return propState.map((dataPoint) => {
       const newStateItem: StatefulData<ReferenceData> = {
         fName: {
           data: dataPoint.fName,
-          error: checkInputForNotEmpty(dataPoint.fName),
+          error: !checkInputForNotEmpty(dataPoint.fName),
         },
         lName: {
           data: dataPoint.lName,
-          error: checkInputForNotEmpty(dataPoint.lName),
+          error: !checkInputForNotEmpty(dataPoint.lName),
         },
         email: {
           data: dataPoint.email,
-          error: checkValidEmail(dataPoint.email),
+          error: !checkValidEmail(dataPoint.email),
         },
         phone: {
           data: dataPoint.phone,
-          error: checkValidPhoneNumber(dataPoint.phone),
+          error: !checkValidPhoneNumber(dataPoint.phone),
         },
         relation: {
           data: dataPoint.relation,
-          error: checkInputForNotEmpty(dataPoint.relation),
+          error: !checkInputForNotEmpty(dataPoint.relation),
         },
       };
       return newStateItem;
@@ -176,7 +172,7 @@ function ReferencesForm({
               labelName="relation"
               required={true}
               error={dataPoint.relation.error}
-              errorMessage="Reference Relation Is Required"
+              errorMessage="Title/Relation Is Required"
               onChange={(e) => handleTextInputChangeWithArrayData(e, idx, state, setState)}
               onBlur={(e) =>
                 handleTextInputBlurWithArrayData(e, idx, state, setState, checkInputForNotEmpty)
@@ -190,7 +186,7 @@ function ReferencesForm({
               labelName="phone"
               required={true}
               error={dataPoint.phone.error}
-              errorMessage="A Valid Phone Number Is Required"
+              errorMessage="Valid Number Required"
               onChange={(e) => onPhoneFieldChange(e, idx)}
               onBlur={(e) =>
                 handleTextInputBlurWithArrayData(e, idx, state, setState, checkValidPhoneNumber)
@@ -204,7 +200,7 @@ function ReferencesForm({
               labelName="email"
               required={true}
               error={dataPoint.email.error}
-              errorMessage="A Valid Email Address Is Required"
+              errorMessage="Valid Email Required"
               onChange={(e) => handleTextInputChangeWithArrayData(e, idx, state, setState)}
               onBlur={(e) =>
                 handleTextInputBlurWithArrayData(e, idx, state, setState, checkValidEmail)

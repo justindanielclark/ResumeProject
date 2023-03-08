@@ -13,10 +13,15 @@
     print-color-adjust: exact;
     width: 8.5in;
     height: 11in;
-    margin: 30mm 45mm 30mm 45mm;
     display: flex;
-    justify-content: center;
-    align-items: center;
+
+  }
+  #root {
+    width: 100%;
+  }
+  main {
+    width: 100%;
+    max-width: 100%;
   }
 }
 

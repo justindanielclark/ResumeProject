@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { PhoneContactData, Payload, StatefulData } from "../../types/resumeData";
 import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import { checkValidPhoneNumber } from "../../utils/inputValidation";
@@ -25,10 +25,6 @@ function PhoneContactForm({
   handleAnimationEnd,
 }: Props) {
   const [state, setState] = useState<State>(createState(propState, prevRendered));
-  useEffect(() => {
-    console.log("Phone Contact Form:");
-    console.log({ state });
-  }, [state]);
   function createState(propState: PhoneContactData, prevRendered: boolean): State {
     return {
       mobile: {
@@ -205,7 +201,11 @@ function PhoneContactForm({
     }
   }
   function handleSubmit() {
-    const hasErrors = !(!state.home.error && !state.mobile.error && !state.other.error);
+    const mobilePhoneError = checkValidPhoneNumber(state.mobile.data);
+    const homePhoneError = state.home.data === "" ? true : checkValidPhoneNumber(state.home.data);
+    const otherPhoneError =
+      state.other.data === "" ? true : checkValidPhoneNumber(state.other.data);
+    const hasErrors = !(mobilePhoneError && homePhoneError && otherPhoneError);
     const payloadData: Payload<PhoneContactData> = {
       data: {
         home: state.home.data,
@@ -219,7 +219,7 @@ function PhoneContactForm({
   }
   return (
     <FormContainer
-      title="Phone Contact Information:"
+      title="Phone Contact:"
       nextHandler={handleSubmit}
       prevHandler={prevHandler}
       animating={animating}

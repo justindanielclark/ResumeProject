@@ -29,7 +29,7 @@ function BreadcrumbBox({ propState, current }: Props) {
       return (
         <li
           key={idx}
-          onClick={item.handleClick}
+          onClick={item.prevRendered ? item.handleClick : undefined}
           className={`${genericTailwindClasses} ${specificTailwindClasses}`}
         >
           {item.name}

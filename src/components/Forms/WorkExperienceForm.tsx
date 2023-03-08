@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import stateAbbreviations from "../../data/stateAbbreviations";
 import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
@@ -33,14 +33,9 @@ function WorkExperienceForm({
   handleAnimationEnd,
 }: Props) {
   const [state, setState] = useState<State>(createState(propState));
-  useEffect(() => {
-    console.log("WorkExperienceForm:");
-    console.log({ state });
-  }, [state]);
   function createState(jobData: Array<JobData>): State {
-    const state: State = [];
-    jobData.forEach((job) => {
-      state.push({
+    const state: State = jobData.map((job) => {
+      const newJobData: StatefulData<JobData> = {
         address: {
           data: {
             address1: {
@@ -94,7 +89,8 @@ function WorkExperienceForm({
           data: job.jobTitle,
           error: !checkInputForNotEmpty(job.jobTitle),
         },
-      });
+      };
+      return newJobData;
     });
     return state;
   }
@@ -239,8 +235,7 @@ function WorkExperienceForm({
   }
   function handleAddressSelectInputChange(
     e: React.ChangeEvent<HTMLSelectElement>,
-    idx: number,
-    stateField: keyof Address
+    idx: number
   ): void {
     const newState = state.map((jobData, index) => {
       if (idx !== index) {
@@ -250,9 +245,12 @@ function WorkExperienceForm({
           ...jobData,
           address: {
             ...jobData.address,
-            [stateField]: {
-              data: e.target.value,
-              error: false,
+            data: {
+              ...jobData.address.data,
+              state: {
+                data: e.target.value,
+                error: false,
+              },
             },
           },
         };
@@ -286,7 +284,7 @@ function WorkExperienceForm({
               labelName={"companyName"}
               required={true}
               error={state[idx].companyName.error}
-              errorMessage="A Company Name is Required"
+              errorMessage="Company Name Is Required"
               onChange={(e) => handleTextInputChangeWithArrayData(e, idx, state, setState)}
               onBlur={(e) =>
                 handleTextInputBlurWithArrayData(e, idx, state, setState, checkInputForNotEmpty)
@@ -383,6 +381,7 @@ function WorkExperienceForm({
               onChange={(e) => handleAddressTextInputChange(e, idx, "address1")}
               onBlur={(e) => handleAddressTextInputBlur(e, idx, "address1", checkInputForNotEmpty)}
               placeholder={jobExamples[idx].address.address1}
+              value={state[idx].address.data.address1.data}
             />
             <TextInput
               label="Apt/Suite/Addl Info:"
@@ -391,6 +390,14 @@ function WorkExperienceForm({
               required={false}
               onChange={(e) => handleAddressTextInputChange(e, idx, "address2")}
               placeholder={jobExamples[idx].address.address2}
+              value={(() => {
+                const address2 = state[idx].address.data.address2;
+                if (address2) {
+                  return address2.data;
+                } else {
+                  return "";
+                }
+              })()}
             />
             <TextInput
               label="City:"
@@ -402,6 +409,7 @@ function WorkExperienceForm({
               errorMessage="Please Enter A City"
               error={state[idx].address.data.city.error}
               placeholder={jobExamples[idx].address.city}
+              value={state[idx].address.data.city.data}
             />
             <SelectInput
               error={false}
@@ -409,9 +417,10 @@ function WorkExperienceForm({
               label={"State:"}
               labelID={`state_${idx}`}
               labelName={`state_${idx}`}
-              onChange={(e) => handleAddressSelectInputChange(e, idx, "state")}
+              onChange={(e) => handleAddressSelectInputChange(e, idx)}
               options={[...stateAbbreviations]}
               required={true}
+              value={state[idx].address.data.state.data}
             />
             <TextInput
               label="ZIP Code:"
@@ -423,6 +432,7 @@ function WorkExperienceForm({
               errorMessage="Please Enter Valid US ZIP Code"
               placeholder={jobExamples[idx].address.zip}
               error={state[idx].address.data.zip.error}
+              value={state[idx].address.data.zip.data}
             />
             <TextAreaInput
               label="Description:"
@@ -436,6 +446,7 @@ function WorkExperienceForm({
               errorMessage="A Job Description is Required"
               placeholder={jobExamples[idx].description}
               error={state[idx].description.error}
+              value={state[idx].description.data}
             />
           </FormSubsection>
         </React.Fragment>

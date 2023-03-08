@@ -2,7 +2,7 @@ import React from "react";
 
 type DerivedButtonProps = {
   children: string;
-  handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  handleClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   className?: string;
   type?: "button" | "submit" | "reset";
 };
@@ -36,7 +36,7 @@ function BaseButton({ children, handleClick, addlClasses, type }: Props) {
       className={createFinalClasses(baseClasses, addlClasses)}
       onClick={(e) => {
         e.stopPropagation();
-        handleClick(e);
+        if (handleClick) handleClick(e);
       }}
     >
       {children}

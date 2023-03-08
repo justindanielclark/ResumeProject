@@ -41,7 +41,7 @@ function createState(propState: Address, prevRendered: boolean): State {
       error: false,
     },
     zip: {
-      data: propState.address1,
+      data: propState.zip,
       error: prevRendered ? !checkValidZIP(propState.zip) : false,
     },
   };
@@ -58,18 +58,18 @@ function AddressContactForm({
   const [state, setState] = useState<State>(createState(propState, prevRendered));
 
   const handleSubmit = () => {
-    const streetAddressValidity = !state.address1.error;
-    const cityValidity = !state.city.error;
-    const ZIPValidity = !state.zip.error;
-    const valid = !(streetAddressValidity && cityValidity && ZIPValidity);
+    const streetAddressValidity = checkInputForNotEmpty(state.address1.data);
+    const cityValidity = checkInputForNotEmpty(state.city.data);
+    const ZIPValidity = checkValidZIP(state.zip.data);
+    const hasErrors = !(streetAddressValidity && cityValidity && ZIPValidity);
     const payloadData: Payload<Address> = {
       data: {
         address1: state.address1.data,
         city: state.city.data,
-        state: state.city.data,
+        state: state.state.data,
         zip: state.zip.data,
       },
-      error: !valid,
+      error: hasErrors,
     };
     if (state.address2) {
       payloadData.data.address2 = state.address2.data;
@@ -92,7 +92,7 @@ function AddressContactForm({
         onChange={(e) => handleTextInputChange(e, state, setState, checkInputForNotEmpty)}
         onBlur={(e) => handleTextInputBlur(e, state, setState, checkInputForNotEmpty)}
         required={true}
-        errorMessage="Please Enter A Street Address"
+        errorMessage="An Address is Required"
         placeholder="123 Main Street"
         error={state.address1.error}
         value={state.address1.data}
@@ -111,8 +111,9 @@ function AddressContactForm({
         labelID="city"
         labelName="city"
         onChange={(e) => handleTextInputChange(e, state, setState, checkInputForNotEmpty)}
+        onBlur={(e) => handleTextInputBlur(e, state, setState, checkInputForNotEmpty)}
         required={true}
-        errorMessage="Please Enter A City"
+        errorMessage="A City is Required"
         placeholder="Coolsville"
         error={state.city.error}
         value={state.city.data}

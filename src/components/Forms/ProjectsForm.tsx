@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ProjectData, StatefulData } from "../../types/resumeData";
 import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../../components/FormInput/TextInput";
@@ -34,10 +34,6 @@ function ProjectsForm({
   handleAnimationEnd,
 }: Props) {
   const [state, setState] = useState<State>(createState(propState));
-  useEffect(() => {
-    console.log("ProjectsForm");
-    console.log({ state });
-  }, [state]);
   function createState(propState: Array<ProjectData>): Array<StatefulData<Required<ProjectData>>> {
     return propState.map((dataPoint) => {
       const newStateItem: StatefulData<Required<ProjectData>> = {
@@ -214,6 +210,7 @@ function ProjectsForm({
               onBlur={(e) =>
                 handleTextInputBlurWithArrayData(e, idx, state, setState, checkInputForNotEmpty)
               }
+              value={state[idx].description.data}
             />
             <TextAreaInput
               label="Skills/Technologies Used:"
@@ -227,6 +224,7 @@ function ProjectsForm({
               onBlur={(e) =>
                 handleTextInputBlurWithArrayData(e, idx, state, setState, checkInputForNotEmpty)
               }
+              value={state[idx].skills.data}
             />
           </FormSubsection>
         </React.Fragment>

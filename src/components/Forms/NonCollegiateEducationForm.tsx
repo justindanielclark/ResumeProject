@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import TextInput from "../FormInput/TextInput";
 import DateInput from "../FormInput/DateInput";
@@ -31,10 +31,6 @@ function NonCollegiateEducationForm({
   handleAnimationEnd,
 }: Props) {
   const [state, setState] = useState<State>(createState(propState));
-  useEffect(() => {
-    console.log("NonCollegiateEducationForm:");
-    console.log({ state });
-  }, [state]);
   function createState(educations: Array<NonCollegiateEducationData>): State {
     const state: State = educations.map((data) => {
       const stateObj: StatefulData<NonCollegiateEducationData> = {
@@ -149,6 +145,7 @@ function NonCollegiateEducationForm({
               required={false}
               onChange={(e) => handleTextInputChangeWithArrayData(e, idx, state, setState)}
               placeholder={examples[idx].description}
+              value={state[idx].description.data}
             />
           </FormSubsection>
         </React.Fragment>

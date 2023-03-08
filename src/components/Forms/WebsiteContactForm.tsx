@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { WebContactData, Payload } from "../../types/resumeData";
 import { FormContainer, FormAnimatingTypes } from "../FormContainer/FormContainer";
 import {
@@ -44,54 +44,57 @@ function PhoneContactForm({
   handleAnimationEnd,
 }: Props) {
   const [state, setState] = useState<State>(createState(propState));
-  useEffect(() => {
-    console.log("WebsiteContactForm:");
-    console.log({ state });
-  }, [state]);
   function createState(propState: WebContactData): State {
-    const emails: Array<StatefulEmailData> = [];
-    const websites: Array<StatefulWebsiteData> = [];
-    if (!prevRendered && propState.email.length === 0) {
-      emails.push({ email: "", error: false });
-    } else {
-      emails.push(
-        ...propState.email.map((email) => {
-          return { email, error: checkValidEmail(email) };
-        })
-      );
-    }
-    if (!prevRendered && propState.websites.length === 0) {
-      websites.push({
-        URLData: {
-          error: false,
-          URL: "",
-        },
-        websiteNameData: {
-          error: false,
-          websiteName: "",
-        },
-      });
-    } else {
-      websites.push(
-        ...propState.websites.map((website) => {
+    let emails: Array<StatefulEmailData>;
+    let websites: Array<StatefulWebsiteData>;
+
+    if (prevRendered) {
+      if (propState.email.length === 0) {
+        emails = [{ email: "", error: true }];
+      } else {
+        emails = propState.email.map((email, idx) => {
+          return {
+            email: email,
+            error:
+              idx === 0 ? !checkValidEmail(email) : email === "" ? false : !checkValidEmail(email),
+          };
+        });
+      }
+      if (propState.websites.length === 0) {
+        websites = [
+          {
+            URLData: { error: false, URL: "" },
+            websiteNameData: { error: false, websiteName: "" },
+          },
+        ];
+      } else {
+        websites = propState.websites.map((website) => {
           return {
             URLData: {
+              error: website.URL === "" ? (website.websiteName === "" ? false : true) : false,
               URL: website.URL,
-              error:
-                website.URL === "" && website.websiteName === ""
-                  ? false
-                  : !checkValidWebsiteAddress(website.URL),
             },
             websiteNameData: {
+              error: website.websiteName === "" ? (website.URL === "" ? false : true) : false,
               websiteName: website.websiteName,
-              error:
-                website.URL === "" && website.websiteName === ""
-                  ? false
-                  : !checkInputForNotEmpty(website.websiteName),
             },
           };
-        })
-      );
+        });
+      }
+    } else {
+      emails = [{ email: "", error: false }];
+      websites = [
+        {
+          URLData: {
+            error: false,
+            URL: "",
+          },
+          websiteNameData: {
+            error: false,
+            websiteName: "",
+          },
+        },
+      ];
     }
     return {
       emails,
@@ -228,89 +231,79 @@ function PhoneContactForm({
     });
   }
   function handleWebsiteNameBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
-    const inputValue = e.target.value;
-    const hasError =
-      inputValue === "" ? (state.websites[index].URLData.URL === "" ? false : true) : false;
-    const websiteNameData = state.websites[index].websiteNameData;
-    if (websiteNameData.error !== hasError) {
-      const websites: Array<StatefulWebsiteData> = state.websites.map((website, idx) => {
-        if (index !== idx) {
-          return { ...website };
+    const input = e.target.value;
+    let WebsiteNameHasErrors: boolean;
+    let URLError = state.websites[index].URLData.error;
+    if (input === "") {
+      WebsiteNameHasErrors = state.websites[index].URLData.URL === "" ? false : true;
+      if (URLError) {
+        URLError = false;
+      }
+    } else {
+      WebsiteNameHasErrors = false;
+    }
+    if (
+      URLError !== state.websites[index].URLData.error ||
+      WebsiteNameHasErrors !== state.websites[index].websiteNameData.error
+    ) {
+      const newWebsites = state.websites.map((website, idx) => {
+        if (idx !== index) {
+          return website;
         }
-        const websiteName: string = website.websiteNameData.websiteName;
-        const websiteURL: string = website.URLData.URL;
-        if (websiteName === "" && websiteURL === "") {
-          return {
-            websiteNameData: {
-              websiteName: inputValue,
-              error: false,
-            },
-            URLData: {
-              URL: websiteURL,
-              error: false,
-            },
-          };
-        }
-        return {
-          websiteNameData: {
-            websiteName: inputValue,
-            error: !checkInputForNotEmpty(inputValue),
-          },
+        const newWebsite: StatefulWebsiteData = {
           URLData: {
-            URL: websiteURL,
-            error: !checkValidWebsiteAddress(websiteURL),
+            URL: website.URLData.URL,
+            error: URLError,
+          },
+          websiteNameData: {
+            websiteName: input,
+            error: WebsiteNameHasErrors,
           },
         };
+        return newWebsite;
       });
       setState({
         ...state,
-        websites,
+        websites: newWebsites,
       });
     }
   }
   function handleWebsiteURLBlur(e: React.ChangeEvent<HTMLInputElement>, index: number): void {
-    const inputValue = e.target.value;
-    const hasError =
-      inputValue === ""
+    const input = e.target.value;
+    const URLError =
+      input === ""
         ? state.websites[index].websiteNameData.websiteName === ""
           ? false
           : true
+        : !checkValidWebsiteAddress(input);
+    const websiteError =
+      state.websites[index].websiteNameData.websiteName === ""
+        ? input === ""
+          ? false
+          : true
         : false;
-    const websiteURL = state.websites[index].URLData;
-    if (websiteURL.error !== hasError) {
-      const websites: Array<StatefulWebsiteData> = state.websites.map((website, idx) => {
+
+    if (
+      URLError !== state.websites[index].URLData.error ||
+      websiteError !== state.websites[index].websiteNameData.error
+    ) {
+      const newWebsites = state.websites.map((website, idx) => {
         if (index !== idx) {
           return website;
         }
-        const websiteName: string = website.websiteNameData.websiteName;
-        const websiteURL: string = website.URLData.URL;
-        if (websiteName === "" && websiteURL === "") {
-          return {
-            websiteNameData: {
-              websiteName: websiteName,
-              error: false,
-            },
-            URLData: {
-              URL: websiteURL,
-              error: false,
-            },
-          };
-        }
-        return {
-          websiteNameData: {
-            websiteName: websiteName,
-            error: !checkInputForNotEmpty(websiteName),
-          },
+        const newWebsite: StatefulWebsiteData = {
           URLData: {
-            URL: inputValue,
-            error: !checkValidWebsiteAddress(inputValue),
+            error: URLError,
+            URL: input,
+          },
+          websiteNameData: {
+            error: websiteError,
+            websiteName: website.websiteNameData.websiteName,
           },
         };
+        return newWebsite;
       });
-      setState({
-        ...state,
-        websites,
-      });
+      setState({ ...state, websites: newWebsites });
     }
   }
   function renderEmails(emails: Array<StatefulEmailData>): Array<JSX.Element> {
@@ -330,7 +323,7 @@ function PhoneContactForm({
               placeholder={`${emailExamples[idx]}`}
               value={email.email}
               error={email.error}
-              errorMessage="A Valid Primary Email Address is Required"
+              errorMessage="A Valid Email Address is Required"
               type="email"
             />
           </FormSubSection>
@@ -349,7 +342,7 @@ function PhoneContactForm({
               placeholder={`${emailExamples[idx]}`}
               value={email.email}
               error={email.error}
-              errorMessage="A Valid Email Address is Required"
+              errorMessage="Input Must Be A Valid Email"
               type="email"
             />
           </FormSubSection>
@@ -374,7 +367,7 @@ function PhoneContactForm({
               placeholder={websiteExamples[idx].siteName}
               value={website.websiteNameData.websiteName}
               error={website.websiteNameData.error}
-              errorMessage="Required If You Enter A Site URL"
+              errorMessage="Required If Site URL"
             />
             <TextInput
               label={`${numberings[idx]} Site URL:`}
